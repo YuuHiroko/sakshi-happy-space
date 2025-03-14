@@ -59,15 +59,15 @@ const Section = ({ title, id, children, className = '' }: SectionProps) => {
     >
       <div className="glass-card p-8 md:p-10">
         <div className="inline-block mb-6">
-          <span className="inline-block py-1 px-3 bg-gradient-to-r from-sakshi-purple/10 to-sakshi-blue/10 text-sakshi-purple text-sm rounded-full mb-2">
+          <span className="inline-block py-1 px-3 bg-gradient-to-r from-sakshi-purple/10 to-sakshi-blue/10 text-sakshi-purple dark:text-white text-sm rounded-full mb-2">
             ✨ {id}
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-sakshi-purple to-sakshi-blue bg-clip-text text-transparent">
+          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-sakshi-purple to-sakshi-blue bg-clip-text text-transparent dark:from-white dark:to-gray-300">
             {title}
           </h2>
         </div>
         
-        <div className="prose prose-lg max-w-none">
+        <div className="prose prose-lg max-w-none dark:prose-invert">
           {children}
         </div>
       </div>

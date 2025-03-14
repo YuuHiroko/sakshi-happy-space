@@ -41,9 +41,9 @@ const Testimonials = ({ testimonials }: TestimonialsProps) => {
           transition={{ duration: 0.6 }}
           className="absolute inset-0 flex flex-col items-center justify-center text-center"
         >
-          <div className="bg-white/10 backdrop-blur-md py-6 px-8 rounded-2xl shadow-lg border border-white/20 w-full max-w-lg">
-            <p className="text-xl italic mb-4">{testimonials[current].quote}</p>
-            <p className="font-medium text-sakshi-purple">{testimonials[current].author}</p>
+          <div className="bg-white/30 dark:bg-black/30 backdrop-blur-md py-6 px-8 rounded-2xl shadow-lg border border-white/20 dark:border-white/10 w-full max-w-lg">
+            <p className="text-xl italic mb-4 text-gray-800 dark:text-white">{testimonials[current].quote}</p>
+            <p className="font-medium text-sakshi-purple dark:text-sakshi-blue">{testimonials[current].author}</p>
           </div>
         </motion.div>
       </AnimatePresence>
@@ -57,8 +57,8 @@ const Testimonials = ({ testimonials }: TestimonialsProps) => {
             size="sm"
             className={`w-2 h-2 p-0 rounded-full transition-all duration-300 ${
               index === current 
-                ? 'bg-sakshi-purple w-6' 
-                : 'bg-sakshi-purple/30'
+                ? 'bg-sakshi-purple dark:bg-sakshi-blue w-6' 
+                : 'bg-sakshi-purple/30 dark:bg-sakshi-blue/30'
             }`}
             aria-label={`Go to testimonial ${index + 1}`}
           />

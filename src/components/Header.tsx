@@ -28,7 +28,7 @@ const Header = ({ isDarkMode, toggleDarkMode }: HeaderProps) => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="font-dancing text-4xl md:text-5xl lg:text-6xl text-white font-bold mb-2"
+          className="font-dancing text-4xl md:text-5xl lg:text-6xl text-white font-bold mb-2 drop-shadow-lg"
         >
           Welcome to Sakshi's World
         </motion.h1>
@@ -37,14 +37,14 @@ const Header = ({ isDarkMode, toggleDarkMode }: HeaderProps) => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4 }}
-          className="text-lg md:text-xl text-white/90 mb-6"
+          className="text-lg md:text-xl text-white/90 mb-6 drop-shadow-md"
         >
           A space filled with love, memories, and happiness
         </motion.p>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 bg-white/20 dark:bg-black/20 backdrop-blur-md px-4 py-2 rounded-full">
           <Switch id="dark-mode" checked={isDarkMode} onCheckedChange={toggleDarkMode} />
-          <Label htmlFor="dark-mode" className="text-white">Dark Mode</Label>
+          <Label htmlFor="dark-mode" className="text-white drop-shadow-sm">Dark Mode</Label>
         </div>
       </div>
     </header>
