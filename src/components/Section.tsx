@@ -57,17 +57,17 @@ const Section = ({ title, id, children, className = '' }: SectionProps) => {
       variants={variants}
       className={`max-w-5xl mx-auto my-16 px-6 md:px-10 ${className}`}
     >
-      <div className="glass-card p-8 md:p-10">
+      <div className="glass-card p-8 md:p-10 hover:shadow-xl transition-all duration-300">
         <div className="inline-block mb-6">
-          <span className="inline-block py-1 px-3 bg-gradient-to-r from-sakshi-purple/10 to-sakshi-blue/10 text-sakshi-purple dark:text-white text-sm rounded-full mb-2">
+          <span className="inline-block py-1 px-3 bg-gradient-to-r from-sakshi-purple/20 to-sakshi-blue/20 dark:from-blue-500/30 dark:to-indigo-600/30 text-sakshi-purple dark:text-blue-200 text-sm rounded-full mb-2 font-medium">
             ✨ {id}
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-sakshi-purple to-sakshi-blue bg-clip-text text-transparent dark:from-white dark:to-gray-300">
+          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-sakshi-purple to-sakshi-blue dark:from-blue-300 dark:to-indigo-400 bg-clip-text text-transparent">
             {title}
           </h2>
         </div>
         
-        <div className="prose prose-lg max-w-none dark:prose-invert">
+        <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-sakshi-purple dark:prose-headings:text-blue-300 prose-a:text-sakshi-blue dark:prose-a:text-blue-400">
           {children}
         </div>
       </div>
