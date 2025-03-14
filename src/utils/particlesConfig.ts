@@ -2,7 +2,7 @@
 export const particlesConfig = {
   particles: {
     number: {
-      value: 80,
+      value: 100,
       density: {
         enable: true,
         value_area: 800
@@ -50,16 +50,16 @@ export const particlesConfig = {
     },
     move: {
       enable: true,
-      speed: 1,
+      speed: 1.5,
       direction: "none",
       random: true,
       straight: false,
       out_mode: "out",
       bounce: false,
       attract: {
-        enable: false,
+        enable: true,
         rotateX: 600,
-        rotateY: 600
+        rotateY: 1200
       }
     }
   },
@@ -113,6 +113,21 @@ export const darkParticlesConfig = {
     line_linked: {
       ...particlesConfig.particles.line_linked,
       color: "#aaaaaa"
+    },
+    move: {
+      ...particlesConfig.particles.move,
+      speed: 1.2
+    }
+  },
+  interactivity: {
+    ...particlesConfig.interactivity,
+    modes: {
+      ...particlesConfig.interactivity.modes,
+      bubble: {
+        ...particlesConfig.interactivity.modes.bubble,
+        size: 5,
+        opacity: 0.6
+      }
     }
   }
 };

@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Button } from "@/components/ui/button";
 
 interface Testimonial {
   quote: string;
@@ -29,7 +30,7 @@ const Testimonials = ({ testimonials }: TestimonialsProps) => {
   };
 
   return (
-    <div className="relative h-40 mt-10">
+    <div className="relative h-60 mt-10">
       <AnimatePresence mode="wait">
         <motion.div
           key={current}
@@ -37,20 +38,28 @@ const Testimonials = ({ testimonials }: TestimonialsProps) => {
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6 }}
           className="absolute inset-0 flex flex-col items-center justify-center text-center"
         >
-          <p className="text-xl italic mb-4">{testimonials[current].quote}</p>
-          <p className="font-medium text-sakshi-purple">{testimonials[current].author}</p>
+          <div className="bg-white/10 backdrop-blur-md py-6 px-8 rounded-2xl shadow-lg border border-white/20 w-full max-w-lg">
+            <p className="text-xl italic mb-4">{testimonials[current].quote}</p>
+            <p className="font-medium text-sakshi-purple">{testimonials[current].author}</p>
+          </div>
         </motion.div>
       </AnimatePresence>
       
       <div className="absolute bottom-0 left-0 right-0 flex justify-center space-x-2">
         {testimonials.map((_, index) => (
-          <button
+          <Button
             key={index}
             onClick={() => setCurrent(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${index === current ? 'bg-sakshi-purple w-6' : 'bg-sakshi-purple/30'}`}
+            variant="ghost"
+            size="sm"
+            className={`w-2 h-2 p-0 rounded-full transition-all duration-300 ${
+              index === current 
+                ? 'bg-sakshi-purple w-6' 
+                : 'bg-sakshi-purple/30'
+            }`}
             aria-label={`Go to testimonial ${index + 1}`}
           />
         ))}
