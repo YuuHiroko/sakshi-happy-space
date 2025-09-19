@@ -12,7 +12,7 @@ import { motion } from 'framer-motion';
 // Import Particles.js directly in the component
 declare global {
   interface Window {
-    particlesJS: any;
+    particlesJS: (elementId: string, config: object) => void;
   }
 }
 
