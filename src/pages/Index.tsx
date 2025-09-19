@@ -6,6 +6,9 @@ import PhotoGallery from '@/components/PhotoGallery';
 import Timeline from '@/components/Timeline';
 import Testimonials from '@/components/Testimonials';
 import Loader from '@/components/Loader';
+import WishCollection from '@/components/WishCollection';
+import MusicVisualizer from '@/components/MusicVisualizer';
+import BirthdayScene3D from '@/components/3d/BirthdayScene3D';
 import { particlesConfig, darkParticlesConfig } from '@/utils/particlesConfig';
 import { motion } from 'framer-motion';
 
@@ -21,6 +24,7 @@ const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('darkMode') === 'true';
   });
+  const [show3DScene, setShow3DScene] = useState(false);
 
   // Handle dark mode toggle
   const toggleDarkMode = () => {
@@ -71,14 +75,14 @@ const Index = () => {
     }
   }, [isDarkMode]);
 
-  // Animal photos for demonstration
+  // Birthday photos for Sakshi
   const photos = [
-    { src: 'https://source.unsplash.com/random/600x600?cat', alt: 'Cute cat' },
-    { src: 'https://source.unsplash.com/random/600x600?dog', alt: 'Playful dog' },
-    { src: 'https://source.unsplash.com/random/600x600?fox', alt: 'Wild fox' },
-    { src: 'https://source.unsplash.com/random/600x600?rabbit', alt: 'Fluffy rabbit' },
-    { src: 'https://source.unsplash.com/random/600x600?panda', alt: 'Lounging panda' },
-    { src: 'https://source.unsplash.com/random/600x600?koala', alt: 'Sleepy koala' },
+    { src: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600&h=600&fit=crop', alt: 'Birthday celebration', title: 'Birthday Joy' },
+    { src: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=600&h=600&fit=crop', alt: 'Happy moments', title: 'Sweet Memories' },
+    { src: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=600&fit=crop', alt: 'Celebration time', title: 'Party Time' },
+    { src: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=600&fit=crop', alt: 'Birthday cake', title: 'Cake Moments' },
+    { src: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&h=600&fit=crop', alt: 'Birthday balloons', title: 'Balloon Fun' },
+    { src: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=600&h=600&fit=crop', alt: 'Special day', title: 'Special Day' },
   ];
 
   const timelineEvents = [
@@ -107,6 +111,34 @@ const Index = () => {
       
       {/* Header */}
       <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+      
+      {/* 3D Scene Toggle Button */}
+      <motion.button
+        onClick={() => setShow3DScene(!show3DScene)}
+        className="fixed top-24 right-4 z-50 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        {show3DScene ? '🌟 Exit 3D' : '🎂 Enter 3D World'}
+      </motion.button>
+      
+      {/* 3D Birthday Scene */}
+      {show3DScene && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-40"
+        >
+          <BirthdayScene3D photos={photos} />
+          <button
+            onClick={() => setShow3DScene(false)}
+            className="absolute top-4 right-4 z-50 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+          >
+            ✕
+          </button>
+        </motion.div>
+      )}
       
       {/* Main Content */}
       <main className="pt-48 pb-20">
@@ -160,13 +192,22 @@ const Index = () => {
           <Testimonials testimonials={testimonials} />
         </Section>
         
-        {/* Music Section */}
-        <Section id="music" title="Music Playlist">
+        {/* Birthday Wishes Section */}
+        <Section id="wishes" title="Birthday Wishes">
           <p className="text-lg leading-relaxed mb-6">
-            Here's a special music playlist curated for Sakshi. These songs reflect her vibrant personality and beautiful spirit.
+            Share your heartfelt birthday wishes for Sakshi! Your messages will make her special day even more memorable.
           </p>
+          <WishCollection />
+        </Section>
+        
+        {/* Music Section */}
+        <Section id="music" title="Birthday Music Experience">
+          <p className="text-lg leading-relaxed mb-6">
+            Enjoy Sakshi's birthday playlist with an amazing 3D music visualizer! Watch the colors dance to the rhythm.
+          </p>
+          <MusicVisualizer />
           
-          <div className="relative overflow-hidden rounded-2xl shadow-xl">
+          <div className="mt-8 relative overflow-hidden rounded-2xl shadow-xl">
             <div className="absolute inset-0 bg-gradient-to-r from-sakshi-purple to-sakshi-blue opacity-20 z-10 pointer-events-none"></div>
             <iframe
               src="https://www.youtube.com/embed/sPHRoZFnEkU"

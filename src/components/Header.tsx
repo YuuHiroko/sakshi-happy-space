@@ -45,8 +45,28 @@ const Header = ({ isDarkMode, toggleDarkMode }: HeaderProps) => {
           transition={{ duration: 0.7, delay: 0.4 }}
           className="text-lg md:text-xl text-white/90 mb-6 drop-shadow-md dark:text-blue-200 dark:drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]"
         >
-          A space filled with love, memories, and happiness
+          🎂 A magical 3D birthday experience filled with love, memories, and happiness 🎉
         </motion.p>
+        
+        {/* Navigation */}
+        <motion.nav 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.6 }}
+          className="mb-6"
+        >
+          <div className="flex flex-wrap justify-center gap-4 text-sm md:text-base">
+            {['about', 'gallery', 'timeline', 'testimonials', 'wishes', 'music'].map((section) => (
+              <a
+                key={section}
+                href={`#${section}`}
+                className="px-4 py-2 bg-white/20 dark:bg-blue-900/30 backdrop-blur-md rounded-full text-white hover:bg-white/30 dark:hover:bg-blue-900/40 transition-all duration-300 capitalize"
+              >
+                {section === 'wishes' ? '💝 Wishes' : section === 'music' ? '🎵 Music' : section}
+              </a>
+            ))}
+          </div>
+        </motion.nav>
         
         <div className="flex items-center space-x-2 bg-white/20 dark:bg-blue-900/30 backdrop-blur-md px-4 py-2 rounded-full shadow-md">
           {isDarkMode ? (
