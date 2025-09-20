@@ -1,27 +1,27 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { useState } from 'react';
+import Scene3D from './components/Scene3D';
+import Navbar from './components/Navbar';
+import Wishes from './components/Wishes';
+import './styles/birthday.css';
 
-const queryClient = new QueryClient();
+function App() {
+  const [show3D, setShow3D] = useState(true);
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+  return (
+    <div className="birthday-bg min-h-screen">
+      <Navbar show3D={show3D} setShow3D={setShow3D} />
+      <main className="container mx-auto py-8">
+        {show3D ? (
+          <Scene3D />
+        ) : (
+          <div>
+            <h1 className="text-4xl font-bold text-center mb-8 gradient-text">Happy Birthday Sakshi! 🎉</h1>
+            <Wishes />
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
 
 export default App;
