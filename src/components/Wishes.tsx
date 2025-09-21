@@ -16,8 +16,8 @@ export default function Wishes() {
   }, []);
 
   const handleAddWish = () => {
-    if (!name || !message) return;
-    const newWishes = [...wishes, { name, message }];
+    if (!name.trim() || !message.trim()) return;
+    const newWishes = [...wishes, { name: name.trim(), message: message.trim() }];
     setWishes(newWishes);
     localStorage.setItem('birthday-wishes', JSON.stringify(newWishes));
     setName('');
@@ -25,15 +25,17 @@ export default function Wishes() {
   };
 
   return (
-    <section className="wishes-section">
+    <section className="wishes-section" aria-label="Birthday wishes">
       <h2 className="text-2xl mb-4 font-semibold">Send Sakshi a Birthday Wish! 💝</h2>
-      <div className="flex gap-2 mb-4">
+      <form className="flex gap-2 mb-4" onSubmit={e => { e.preventDefault(); handleAddWish(); }}>
         <input
           type="text"
           placeholder="Your name"
           value={name}
           onChange={e => setName(e.target.value)}
           className="px-2 py-1 border rounded"
+          maxLength={32}
+          aria-label="Your name"
         />
         <input
           type="text"
@@ -41,9 +43,11 @@ export default function Wishes() {
           value={message}
           onChange={e => setMessage(e.target.value)}
           className="px-2 py-1 border rounded w-2/3"
+          maxLength={120}
+          aria-label="Your birthday wish"
         />
-        <button onClick={handleAddWish} className="bg-pink-400 px-4 py-1 rounded text-white font-bold">Send</button>
-      </div>
+        <button type="submit" className="bg-pink-400 px-4 py-1 rounded text-white font-bold">Send</button>
+      </form>
       <div className="wishes-list">
         {wishes.length === 0 ? (
           <p>No wishes yet. Be the first!</p>
