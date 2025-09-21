@@ -10,17 +10,19 @@ import GiftBox3D from './GiftBox3D';
 
 export default function Scene3D() {
   return (
-    <Canvas camera={{ position: [0, 2, 7], fov: 50 }}>
-      <ambientLight intensity={0.8} />
-      <Suspense fallback={null}>
-        <Cake3D />
-        <Balloons3D />
-        <Confetti3D />
-        <PhotoCarousel3D />
-        <Countdown3D />
-        <MusicVisualizer3D />
-        <GiftBox3D />
-      </Suspense>
-    </Canvas>
+    <div className="w-full h-[60vh] rounded-xl overflow-hidden shadow-xl bg-white/40">
+      <Canvas camera={{ position: [0, 2, 7], fov: 50 }}>
+        <ambientLight intensity={0.8} />
+        <Suspense fallback={null}>
+          <Cake3D />
+          <Balloons3D />
+          <Confetti3D />
+          <PhotoCarousel3D />
+          <Countdown3D />
+          <MusicVisualizer3D />
+          <GiftBox3D />
+        </Suspense>
+      </Canvas>
+    </div>
   );
 }
