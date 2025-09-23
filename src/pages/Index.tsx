@@ -172,33 +172,55 @@ const Index: React.FC = () => {
       <EnhancedLoader isLoading={isLoading} />
       <FixedNavbar isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} currentSection={currentSection} onSectionChange={handleSectionChange} show3DScene={show3DScene} onToggle3D={toggle3DScene} />
       <AnimatePresence>
-        {show3DScene && (
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-40">
+        {show3DScene ? (
+          <motion.div
+            key="3d-scene"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.5 }}
+            className="fixed inset-0 z-40"
+          >
             <EnhancedBirthdayScene3D photos={photos} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="main-content"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <main className="min-h-screen">
+              {renderCurrentSection()}
+            </main>
+            <footer className="relative py-10 text-center bg-gradient-to-r from-pink-500 via-purple-600 to-blue-600">
+              <div className="relative z-10">
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-white text-lg font-medium"
+                >
+                  Made with 💖 by Munchkin
+                </motion.p>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="mt-4"
+                >
+                  <div className="inline-block animate-bounce">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
+                      <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" fill="currentColor" />
+                    </svg>
+                  </div>
+                </motion.div>
+              </div>
+            </footer>
           </motion.div>
         )}
       </AnimatePresence>
-      {!show3DScene && (
-        <motion.main className="min-h-screen" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          {renderCurrentSection()}
-        </motion.main>
-      )}
-      {!show3DScene && (
-        <footer className="relative py-10 text-center bg-gradient-to-r from-pink-500 via-purple-600 to-blue-600">
-          <div className="relative z-10">
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-white text-lg font-medium">
-              Made with 💖 by Munchkin
-            </motion.p>
-            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }} className="mt-4">
-              <div className="inline-block animate-bounce">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
-                  <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" fill="currentColor" />
-                </svg>
-              </div>
-            </motion.div>
-          </div>
-        </footer>
-      )}
     </div>
   );
 };
