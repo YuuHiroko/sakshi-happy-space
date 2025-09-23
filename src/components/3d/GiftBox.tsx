@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Box, Cylinder } from '@react-three/drei';
+import { Box, Cylinder, Sparkles } from '@react-three/drei';
 import { Group } from 'three';
 import { useSpring as useSpringAnimation, animated } from '@react-spring/three';
 
@@ -9,40 +9,38 @@ interface GiftBoxProps {
   onOpen?: () => void;
   isOpen?: boolean;
   scale?: number;
+  isMobile?: boolean;
 }
 
-const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false, scale = 1 }: GiftBoxProps) => {
+const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false, scale = 1, isMobile = false }: GiftBoxProps) => {
   const boxRef = useRef<Group>(null);
-  const lidRef = useRef<Group>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
 
-  // Animation for lid opening
   const { lidY, lidRotation } = useSpringAnimation({
-    lidY: isOpen ? 2 : 0,
-    lidRotation: isOpen ? Math.PI * 0.3 : 0,
-    config: { tension: 120, friction: 14 }
+    lidY: isOpen ? 2.5 : 0,
+    lidRotation: isOpen ? Math.PI * 0.35 : 0,
+    config: { tension: 150, friction: 20 }
   });
 
-  // Hover animation
-  const { hoverScale } = useSpringAnimation({
-    hoverScale: isHovered ? 1.1 : 1,
-    config: { tension: 300, friction: 10 }
-  });
+  useEffect(() => {
+    if (isOpen) {
+      setHasOpened(true);
+    }
+  }, [isOpen]);
 
   useFrame((state) => {
-    if (boxRef.current) {
-      boxRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
-      
-      if (!isOpen) {
-        boxRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2) * 0.05;
-      }
+    const { clock } = state;
+    if (boxRef.current && !isOpen) {
+      const pulse = Math.sin(clock.elapsedTime * 2.5) * 0.08 + 0.92;
+      const hoverPulse = isHovered ? 1.15 : 1;
+      boxRef.current.scale.set(scale * pulse * hoverPulse, scale * pulse * hoverPulse, scale * pulse * hoverPulse);
+      boxRef.current.position.y = position[1] + Math.sin(clock.elapsedTime * 1.5) * 0.1;
     }
   });
 
   const handleClick = () => {
     if (!hasOpened && onOpen) {
-      setHasOpened(true);
       onOpen();
     }
   };
@@ -51,109 +49,62 @@ const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false, scale = 1 }: Gi
     <group 
       ref={boxRef} 
       position={position}
-      scale={scale * (isHovered ? 1.1 : 1)}
       onClick={handleClick}
-      onPointerOver={() => setIsHovered(true)}
+      onPointerOver={() => !isOpen && setIsHovered(true)}
       onPointerOut={() => setIsHovered(false)}
+      scale={scale}
     >
-      {/* Gift box base */}
-      <Box args={[2, 1.5, 2]} position={[0, 0, 0]}>
+      <Box args={[2.2, 1.6, 2.2]} position={[0, 0, 0]}>
         <meshStandardMaterial 
           color="#ff69b4" 
-          metalness={0.1}
-          roughness={0.3}
+          metalness={0.2}
+          roughness={0.4}
+          emissive="#ff1493"
+          emissiveIntensity={isHovered ? 0.3 : 0}
         />
       </Box>
       
-      {/* Gift box lid */}
-      <group 
-        ref={lidRef}
-        position={[0, isOpen ? 2 : 0, 0]}
-        rotation={[isOpen ? Math.PI * 0.3 : 0, 0, 0]}
+      <animated.group 
+        position-y={lidY}
+        rotation-x={lidRotation}
       >
-        <Box args={[2.1, 0.3, 2.1]} position={[0, 0.9, 0]}>
-          <meshStandardMaterial 
-            color="#ff1493" 
-            metalness={0.1}
-            roughness={0.3}
-          />
+        <Box args={[2.3, 0.4, 2.3]} position={[0, 0.95, 0]}>
+          <meshStandardMaterial color="#ff1493" metalness={0.2} roughness={0.4} />
         </Box>
         
-        {/* Ribbon horizontal */}
-        <Box args={[2.2, 0.35, 0.3]} position={[0, 0.9, 0]}>
-          <meshStandardMaterial 
-            color="#ffd700" 
-            metalness={0.3}
-            roughness={0.2}
-          />
+        <Box args={[2.4, 0.45, 0.4]} position={[0, 0.95, 0]}>
+          <meshStandardMaterial color="#ffd700" metalness={0.4} roughness={0.3} />
         </Box>
         
-        {/* Ribbon vertical */}
-        <Box args={[0.3, 0.35, 2.2]} position={[0, 0.9, 0]}>
-          <meshStandardMaterial 
-            color="#ffd700" 
-            metalness={0.3}
-            roughness={0.2}
-          />
+        <Box args={[0.4, 0.45, 2.4]} position={[0, 0.95, 0]}>
+          <meshStandardMaterial color="#ffd700" metalness={0.4} roughness={0.3} />
         </Box>
         
-        {/* Bow */}
-        <group position={[0, 1.2, 0]}>
-          {/* Bow left */}
-          <Box args={[0.6, 0.3, 0.4]} position={[-0.3, 0, 0]} rotation={[0, 0, 0.3]}>
-            <meshStandardMaterial 
-              color="#ffd700" 
-              metalness={0.3}
-              roughness={0.2}
-            />
+        <group position={[0, 1.3, 0]}>
+          <Box args={[0.7, 0.4, 0.5]} position={[-0.35, 0, 0]} rotation={[0, 0, 0.4]}>
+            <meshStandardMaterial color="#ffd700" metalness={0.4} roughness={0.3} />
           </Box>
           
-          {/* Bow right */}
-          <Box args={[0.6, 0.3, 0.4]} position={[0.3, 0, 0]} rotation={[0, 0, -0.3]}>
-            <meshStandardMaterial 
-              color="#ffd700" 
-              metalness={0.3}
-              roughness={0.2}
-            />
+          <Box args={[0.7, 0.4, 0.5]} position={[0.35, 0, 0]} rotation={[0, 0, -0.4]}>
+            <meshStandardMaterial color="#ffd700" metalness={0.4} roughness={0.3} />
           </Box>
           
-          {/* Bow center */}
-          <Cylinder args={[0.15, 0.15, 0.4]} rotation={[Math.PI / 2, 0, 0]}>
-            <meshStandardMaterial 
-              color="#ffb347" 
-              metalness={0.3}
-              roughness={0.2}
-            />
+          <Cylinder args={[0.18, 0.18, 0.5]} rotation={[Math.PI / 2, 0, 0]}>
+            <meshStandardMaterial color="#ffb347" metalness={0.4} roughness={0.3} />
           </Cylinder>
         </group>
-      </group>
+      </animated.group>
       
-      {/* Sparkles around the gift */}
       {!isOpen && (
-        <group>
-          {[...Array(8)].map((_, i) => {
-            const angle = (i / 8) * Math.PI * 2;
-            const radius = 2;
-            return (
-              <Box 
-                key={i}
-                args={[0.1, 0.1, 0.1]} 
-                position={[
-                  Math.cos(angle) * radius,
-                  Math.sin(angle * 2) * 0.5 + 1,
-                  Math.sin(angle) * radius
-                ]}
-                rotation={[angle, angle, angle]}
-              >
-                <meshStandardMaterial 
-                  color="#ffffff" 
-                  emissive="#ffffff"
-                  emissiveIntensity={0.5}
-                />
-              </Box>
-            );
-          })}
-        </group>
+        <Sparkles 
+          count={isMobile ? 30 : 50}
+          scale={isMobile ? 3 : 4}
+          position={[0, 1, 0]}
+          size={isMobile ? 5 : 7}
+          speed={0.6}
+          opacity={isHovered ? 1 : 0.7}
+          color="#ffffff"
+        />
       )}
     </group>
   );

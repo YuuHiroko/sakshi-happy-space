@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Box, Text, Image } from '@react-three/drei';
-import { Group } from 'three';
+import { Box, Text, Image, Sparkles } from '@react-three/drei';
+import { Group, Mesh } from 'three';
+import { useSpring as useSpringAnimation, animated } from '@react-spring/three';
 
 interface Photo {
   src: string;
@@ -9,137 +10,156 @@ interface Photo {
   title?: string;
 }
 
+interface PhotoItemProps {
+  photo: Photo;
+  position: [number, number, number];
+  rotationY: number;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+const PhotoItem = memo(({ photo, position, rotationY, isActive, onClick }: PhotoItemProps) => {
+  const itemRef = useRef<Group>(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const { scale, frameColor, emissiveIntensity } = useSpringAnimation({
+    scale: isActive ? 1.2 : isHovered ? 1.1 : 1,
+    frameColor: isActive ? "#ffd700" : isHovered ? "#ffffff" : "#a9a9a9",
+    emissiveIntensity: isActive ? 0.6 : isHovered ? 0.3 : 0,
+    config: { tension: 200, friction: 20 }
+  });
+
+  return (
+    <animated.group
+      ref={itemRef}
+      position={position}
+      rotation-y={rotationY}
+      scale={scale}
+      onClick={onClick}
+      onPointerOver={() => setIsHovered(true)}
+      onPointerOut={() => setIsHovered(false)}
+    >
+      <Box args={[2.2, 2.8, 0.1]} position={[0, 0, -0.05]}>
+        <animated.meshStandardMaterial
+          color={frameColor}
+          metalness={0.5}
+          roughness={0.3}
+          emissive={frameColor}
+          emissiveIntensity={emissiveIntensity}
+          toneMapped={false}
+        />
+      </Box>
+
+      <Image url={photo.src} scale={[2, 2.5, 1]} position={[0, 0.1, 0.01]} />
+      
+      {photo.title && (
+        <Text
+          position={[0, -1.6, 0.1]}
+          fontSize={0.18}
+          color={isActive ? "#ffffff" : "#eeeeee"}
+          anchorX="center"
+          maxWidth={2}
+          outlineColor="#000000"
+          outlineWidth={0.02}
+        >
+          {photo.title}
+        </Text>
+      )}
+
+      {isActive && (
+        <Sparkles 
+          count={40}
+          scale={3.5}
+          size={8}
+          speed={0.4}
+          color="#ffd700"
+        />
+      )}
+    </animated.group>
+  );
+});
+
 interface PhotoCarousel3DProps {
   photos: Photo[];
   position?: [number, number, number];
   radius?: number;
   scale?: number;
+  isMobile?: boolean;
 }
 
-const PhotoCarousel3D = ({ photos, position = [0, 0, 0], radius = 4, scale = 1 }: PhotoCarousel3DProps) => {
+const PhotoCarousel3D = ({ photos, position = [0, 0, 0], radius = 4, scale = 1, isMobile = false }: PhotoCarousel3DProps) => {
   const carouselRef = useRef<Group>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoRotating, setIsAutoRotating] = useState(true);
+  const targetRotation = useMemo(() => -currentIndex * (Math.PI * 2 / photos.length), [currentIndex, photos.length]);
 
-  useFrame((state, delta) => {
-    if (carouselRef.current && isAutoRotating) {
-      carouselRef.current.rotation.y += delta * 0.2;
-    }
+  const { rotationY } = useSpringAnimation({
+    rotationY: targetRotation,
+    config: { tension: 120, friction: 30 },
   });
 
   const handlePhotoClick = (index: number) => {
     setCurrentIndex(index);
-    setIsAutoRotating(false);
-    
-    // Resume auto rotation after 3 seconds
-    setTimeout(() => {
-      setIsAutoRotating(true);
-    }, 3000);
   };
 
   return (
     <group position={position} scale={scale}>
-      <group ref={carouselRef}>
+      <animated.group ref={carouselRef} rotation-y={rotationY}>
         {photos.map((photo, index) => {
           const angle = (index / photos.length) * Math.PI * 2;
-          const x = Math.cos(angle) * radius;
-          const z = Math.sin(angle) * radius;
-          const isActive = index === currentIndex;
+          const x = Math.sin(angle) * radius;
+          const z = Math.cos(angle) * radius;
           
           return (
-            <group 
-              key={index} 
+            <PhotoItem
+              key={index}
+              photo={photo}
               position={[x, 0, z]}
-              rotation={[0, -angle + Math.PI, 0]}
-            >
-              {/* Photo frame */}
-              <Box 
-                args={[2.2, 2.8, 0.1]} 
-                position={[0, 0, -0.05]}
-                onClick={() => handlePhotoClick(index)}
-              >
-                <meshStandardMaterial 
-                  color={isActive ? "#ffd700" : "#8B4513"} 
-                  metalness={0.3}
-                  roughness={0.4}
-                />
-              </Box>
-              
-              {/* Photo */}
-              <Box 
-                args={[2, 2.5, 0.02]} 
-                position={[0, 0.1, 0]}
-                onClick={() => handlePhotoClick(index)}
-              >
-                <meshStandardMaterial color="white" />
-              </Box>
-              <mesh position={[0, 0.1, 0.02]}>
-                <planeGeometry args={[2, 2.5]} />
-                <meshBasicMaterial>
-                  <Image url={photo.src} />
-                </meshBasicMaterial>
-              </mesh>
-              
-              {/* Photo title */}
-              {photo.title && (
-                <Text
-                  position={[0, -1.6, 0.1]}
-                  fontSize={0.2}
-                  color={isActive ? "#ff1493" : "#333"}
-                  anchorX="center"
-                  anchorY="middle"
-                  maxWidth={2}
-                >
-                  {photo.title}
-                </Text>
-              )}
-              
-              {/* Glow effect for active photo */}
-              {isActive && (
-                <Box args={[2.4, 3, 0.05]} position={[0, 0, -0.1]}>
-                  <meshStandardMaterial 
-                    color="#ffffff" 
-                    emissive="#ffd700"
-                    emissiveIntensity={0.3}
-                    transparent
-                    opacity={0.3}
-                  />
-                </Box>
-              )}
-            </group>
+              rotationY={-angle}
+              isActive={index === currentIndex}
+              onClick={() => handlePhotoClick(index)}
+            />
           );
         })}
-      </group>
+      </animated.group>
       
-      {/* Carousel base */}
-      <Box args={[radius * 2.5, 0.2, radius * 2.5]} position={[0, -2, 0]}>
+      <Box args={[radius * 2.5, 0.2, radius * 2.5]} position={[0, -2.2, 0]}>
         <meshStandardMaterial 
-          color="#dda0dd" 
-          metalness={0.1}
+          color="#4a0b4a" 
+          metalness={0.2}
           roughness={0.8}
           transparent
-          opacity={0.3}
+          opacity={0.5}
         />
       </Box>
       
-      {/* Center pillar */}
-      <Box args={[0.3, 4, 0.3]} position={[0, 0, 0]}>
+      <Cylinder args={[0.2, 0.2, 4.5, 16]} position={[0, -0.05, 0]}>
         <meshStandardMaterial 
-          color="#8B4513" 
-          metalness={0.2}
-          roughness={0.6}
+          color="#6a1b6a"
+          metalness={0.4}
+          roughness={0.5}
         />
-      </Box>
+      </Cylinder>
       
-      {/* Navigation instructions */}
       <Text
         position={[0, 3, 0]}
-        fontSize={0.3}
-        color="#ff69b4"
+        fontSize={isMobile ? 0.25 : 0.3}
+        color="#ff99ff"
+        anchorX="center"
+        anchorY="middle"
+        outlineColor="#000"
+        outlineWidth={0.01}
+      >
+        Explore the Memories
+      </Text>
+
+      <Text
+        position={[0, 2.6, 0]}
+        fontSize={0.2}
+        color="#ffffff"
         anchorX="center"
         anchorY="middle"
       >
-        Click photos to focus
+        Click a photo to get a closer look
       </Text>
     </group>
   );
