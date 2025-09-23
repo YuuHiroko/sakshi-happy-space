@@ -4,6 +4,7 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: process.env.NODE_ENV === 'vercel' ? '/' : (process.env.NODE_ENV === 'production' ? '/sakshi-happy-space/' : '/'),
   server: {
     host: "0.0.0.0",
     port: 12000,
