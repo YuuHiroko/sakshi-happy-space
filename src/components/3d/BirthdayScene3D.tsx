@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, PerspectiveCamera, Stars, Html } from '@react-three/drei';
 import { motion } from 'framer-motion';
@@ -6,8 +6,6 @@ import BirthdayCake from './BirthdayCake';
 import FloatingBalloons from './FloatingBalloons';
 import ConfettiExplosion from './ConfettiExplosion';
 import GiftBox from './GiftBox';
-import PhotoCarousel3D from './PhotoCarousel3D';
-
 
 interface BirthdayScene3DProps {
   photos: Array<{ src: string; alt: string; title?: string }>;
@@ -28,7 +26,6 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     
-    // Hide instructions after 5 seconds
     const timer = setTimeout(() => {
       setShowInstructions(false);
     }, 5000);
@@ -50,13 +47,10 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
     setTimeout(() => setConfettiTrigger(false), 100);
   };
 
-  // Convert photos to include titles
-  const photosWithTitles = photos.map((photo, index) => ({
+  const photosWithTitles = useMemo(() => photos.map((photo, index) => ({
     ...photo,
     title: `Memory ${index + 1}`
-  }));
-
-
+  })), [photos]);
 
   return (
     <div className="w-full h-screen relative bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
@@ -73,14 +67,12 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
             </div>
           </Html>
         }>
-          {/* Camera */}
           <PerspectiveCamera 
             makeDefault 
             position={isMobile ? [0, 3, 12] : [0, 5, 15]} 
             fov={isMobile ? 75 : 60}
           />
           
-          {/* Controls */}
           <OrbitControls 
             enablePan={!isMobile}
             enableZoom={true}
@@ -94,7 +86,6 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
             enableDamping={true}
           />
           
-          {/* Lighting */}
           <ambientLight intensity={0.4} />
           <directionalLight 
             position={[10, 10, 5]} 
@@ -107,11 +98,9 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
           <pointLight position={[-10, 5, -10]} intensity={0.3} color="#87ceeb" />
           <pointLight position={[10, 5, 10]} intensity={0.3} color="#98fb98" />
           
-          {/* Environment */}
           <Environment preset="sunset" />
           <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
           
-          {/* 3D Components */}
           <BirthdayCake 
             position={[0, -2, 0]} 
             onAllCandlesBlown={handleCandlesBlown}
@@ -128,14 +117,6 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
             scale={isMobile ? 0.8 : 1}
           />
           
-          <PhotoCarousel3D 
-            photos={photosWithTitles}
-            position={isMobile ? [0, 1, -6] : [0, 2, -8]}
-            radius={isMobile ? 2 : 3}
-            scale={isMobile ? 0.8 : 1}
-          />
-          
-          {/* Birthday Message instead of countdown */}
           <Html position={isMobile ? [-4, 2, 0] : [-6, 3, 0]} transform occlude>
             <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-4 rounded-xl shadow-lg backdrop-blur-md border border-white/20">
               <h3 className="text-lg font-bold mb-2">🎂 Birthday Celebration!</h3>
@@ -146,14 +127,12 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
             </div>
           </Html>
           
-          {/* Confetti */}
           <ConfettiExplosion 
             trigger={confettiTrigger}
             position={[0, 5, 0]}
             count={isMobile ? 150 : 300}
           />
           
-          {/* Ground */}
           <mesh receiveShadow position={[0, -3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[100, 100]} />
             <meshStandardMaterial 
@@ -165,7 +144,6 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
         </Suspense>
       </Canvas>
       
-      {/* Mobile-friendly UI Overlay */}
       {showInstructions && (
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -185,13 +163,11 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
           <ul className="text-sm space-y-1">
             <li>🕯️ {isMobile ? 'Tap' : 'Click'} candles to blow them out</li>
             <li>🎁 {isMobile ? 'Tap' : 'Click'} the gift box to open it</li>
-            <li>📸 {isMobile ? 'Tap' : 'Click'} photos in the carousel</li>
             <li>{isMobile ? '👆 Touch to rotate, pinch to zoom' : '🖱️ Drag to rotate, scroll to zoom'}</li>
           </ul>
         </motion.div>
       )}
       
-      {/* Welcome Message */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -206,7 +182,6 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
         </p>
       </motion.div>
       
-      {/* Performance indicator */}
       <div className={`absolute ${isMobile ? 'bottom-2 right-2' : 'bottom-4 right-4'} text-white bg-black/30 backdrop-blur-sm rounded-lg px-3 py-1 text-xs`}>
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
