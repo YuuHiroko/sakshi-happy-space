@@ -168,6 +168,7 @@ const Index: React.FC = () => {
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'}`}>
+      <div id="particles-js" className="absolute inset-0 z-0" />
       <EnhancedLoader isLoading={isLoading} />
       <FixedNavbar isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} currentSection={currentSection} onSectionChange={handleSectionChange} show3DScene={show3DScene} onToggle3D={toggle3DScene} />
       <AnimatePresence>
