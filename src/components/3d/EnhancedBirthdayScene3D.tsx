@@ -189,7 +189,7 @@ const EnhancedBirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps)
                 <motion.div whileHover={{ scale: 1.05, x: 4 }} className="flex items-center gap-3 p-2 bg-white/10 rounded-lg">🕯️ Blow Candles</motion.div>
                 <motion.div whileHover={{ scale: 1.05, x: 4 }} className="flex items-center gap-3 p-2 bg-white/10 rounded-lg">🎁 Open Gift</motion.div>
                 <motion.div whileHover={{ scale: 1.05, x: 4 }} className="flex items-center gap-3 p-2 bg-white/10 rounded-lg">📸 View Photos</motion.div>
-                <motion.div whileHover={{ scale: 1.05, x: 4 }} className.flex.items-center.gap-3.p-2.bg-white/10.rounded-lg>🎈 Enjoy Balloons</motion.div>
+                <motion.div whileHover={{ scale: 1.05, x: 4 }} className="flex items-center gap-3 p-2 bg-white/10 rounded-lg">🎈 Enjoy Balloons</motion.div>
               </div>
             </div>
           </motion.div>
