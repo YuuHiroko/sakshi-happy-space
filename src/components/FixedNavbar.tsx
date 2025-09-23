@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Sun, Moon, Home, Camera, Clock, MessageSquare, Heart, Music, Sparkles } from "lucide-react";
 
 interface FixedNavbarProps {
@@ -13,56 +12,66 @@ interface FixedNavbarProps {
   onToggle3D: () => void;
 }
 
-const FixedNavbar = ({ 
+const NAV_ITEMS = [
+  { id: '3d', label: '3D World', icon: Sparkles },
+  { id: 'about', label: 'About', icon: Home },
+  { id: 'gallery', label: 'Gallery', icon: Camera },
+  { id: 'timeline', label: 'Timeline', icon: Clock },
+  { id: 'testimonials', label: 'Stories', icon: MessageSquare },
+  { id: 'wishes', label: 'Wishes', icon: Heart },
+  { id: 'music', label: 'Music', icon: Music },
+];
+
+const FixedNavbar: React.FC<FixedNavbarProps> = ({ 
   isDarkMode, 
   toggleDarkMode, 
   currentSection, 
   onSectionChange,
   show3DScene,
   onToggle3D
-}: FixedNavbarProps) => {
+}) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = [
-    { id: '3d', label: '3D World', icon: Sparkles },
-    { id: 'about', label: 'About', icon: Home },
-    { id: 'gallery', label: 'Gallery', icon: Camera },
-    { id: 'timeline', label: 'Timeline', icon: Clock },
-    { id: 'testimonials', label: 'Stories', icon: MessageSquare },
-    { id: 'wishes', label: 'Wishes', icon: Heart },
-    { id: 'music', label: 'Music', icon: Music },
-  ];
-
   const handleSectionClick = (sectionId: string) => {
-    console.log('Navbar: Clicking section', sectionId);
     onSectionChange(sectionId);
     setIsMobileMenuOpen(false);
     
-    // Don't use onToggle3D here, let the parent handle the 3D scene logic
-    // Just smooth scroll to section if it's not 3D
     if (sectionId !== '3d') {
       setTimeout(() => {
         const element = document.getElementById(sectionId);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     }
   };
 
+  const renderNavItems = (isMobile: boolean = false) => {
+    return NAV_ITEMS.map(({ id, label, icon: Icon }) => (
+      <motion.button
+        key={id}
+        onClick={() => handleSectionClick(id)}
+        className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+          currentSection === id
+            ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
+            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+        } ${isMobile ? 'w-full justify-start text-left' : ''}`}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <Icon size={isMobile ? 18 : 16} />
+        <span className={isMobile ? 'font-medium' : ''}>{label}</span>
+      </motion.button>
+    ));
+  };
+
   return (
     <>
-      {/* Fixed Top Navbar */}
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -74,7 +83,6 @@ const FixedNavbar = ({
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo/Title */}
             <motion.div 
               className="flex items-center space-x-2"
               whileHover={{ scale: 1.05 }}
@@ -85,47 +93,16 @@ const FixedNavbar = ({
               </h1>
             </motion.div>
 
-            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <motion.button
-                    key={item.id}
-                    onClick={() => handleSectionClick(item.id)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                      currentSection === item.id
-                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Icon size={16} />
-                    <span>{item.label}</span>
-                  </motion.button>
-                );
-              })}
+              {renderNavItems()}
             </div>
 
-            {/* Dark Mode Toggle & Mobile Menu */}
             <div className="flex items-center space-x-4">
-              {/* Dark Mode Toggle */}
               <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1">
-                {isDarkMode ? (
-                  <Moon size={14} className="text-blue-400" />
-                ) : (
-                  <Sun size={14} className="text-yellow-500" />
-                )}
-                <Switch 
-                  id="dark-mode" 
-                  checked={isDarkMode} 
-                  onCheckedChange={toggleDarkMode}
-                  className="scale-75"
-                />
+                {isDarkMode ? <Moon size={14} className="text-blue-400" /> : <Sun size={14} className="text-yellow-500" />}
+                <Switch id="dark-mode" checked={isDarkMode} onCheckedChange={toggleDarkMode} className="scale-75" />
               </div>
 
-              {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -140,35 +117,17 @@ const FixedNavbar = ({
           </div>
         </div>
 
-        {/* Mobile Menu */}
         <motion.div
           initial={false}
           animate={{ height: isMobileMenuOpen ? 'auto' : 0 }}
           className="md:hidden overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700"
         >
           <div className="px-4 py-2 space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleSectionClick(item.id)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 ${
-                    currentSection === item.id
-                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  <Icon size={18} />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              );
-            })}
+            {renderNavItems(true)}
           </div>
         </motion.div>
       </motion.nav>
 
-      {/* Welcome Header - Only show when not in 3D mode */}
       {!show3DScene && (
         <motion.header
           initial={{ opacity: 0, y: 20 }}
