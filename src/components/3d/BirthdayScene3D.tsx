@@ -1,12 +1,13 @@
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, PerspectiveCamera, Stars } from '@react-three/drei';
+import { OrbitControls, Environment, PerspectiveCamera, Stars, Html } from '@react-three/drei';
+import { motion } from 'framer-motion';
 import BirthdayCake from './BirthdayCake';
 import FloatingBalloons from './FloatingBalloons';
 import ConfettiExplosion from './ConfettiExplosion';
 import GiftBox from './GiftBox';
 import PhotoCarousel3D from './PhotoCarousel3D';
-import BirthdayCountdown from './BirthdayCountdown';
+
 
 interface BirthdayScene3DProps {
   photos: Array<{ src: string; alt: string; title?: string }>;
@@ -16,6 +17,27 @@ interface BirthdayScene3DProps {
 const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
   const [confettiTrigger, setConfettiTrigger] = useState(false);
   const [giftOpened, setGiftOpened] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    // Hide instructions after 5 seconds
+    const timer = setTimeout(() => {
+      setShowInstructions(false);
+    }, 5000);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      clearTimeout(timer);
+    };
+  }, []);
 
   const handleCandlesBlown = () => {
     setConfettiTrigger(true);
@@ -34,24 +56,42 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
     title: `Memory ${index + 1}`
   }));
 
-  // Default birthday date (you can customize this)
-  const defaultBirthdayDate = birthdayDate || new Date(new Date().getFullYear(), 11, 25); // December 25th
+
 
   return (
-    <div className="w-full h-screen relative">
-      <Canvas shadows>
-        <Suspense fallback={null}>
+    <div className="w-full h-screen relative bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+      <Canvas 
+        shadows 
+        dpr={isMobile ? [1, 1.5] : [1, 2]}
+        performance={{ min: 0.5 }}
+      >
+        <Suspense fallback={
+          <Html center>
+            <div className="text-white text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+              <p>Loading 3D Experience...</p>
+            </div>
+          </Html>
+        }>
           {/* Camera */}
-          <PerspectiveCamera makeDefault position={[0, 5, 15]} />
+          <PerspectiveCamera 
+            makeDefault 
+            position={isMobile ? [0, 3, 12] : [0, 5, 15]} 
+            fov={isMobile ? 75 : 60}
+          />
           
           {/* Controls */}
           <OrbitControls 
-            enablePan={true}
+            enablePan={!isMobile}
             enableZoom={true}
             enableRotate={true}
-            minDistance={5}
-            maxDistance={50}
+            minDistance={isMobile ? 8 : 5}
+            maxDistance={isMobile ? 25 : 50}
             maxPolarAngle={Math.PI / 2}
+            autoRotate={false}
+            autoRotateSpeed={0.5}
+            dampingFactor={0.05}
+            enableDamping={true}
           />
           
           {/* Lighting */}
@@ -75,60 +115,102 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
           <BirthdayCake 
             position={[0, -2, 0]} 
             onAllCandlesBlown={handleCandlesBlown}
+            scale={isMobile ? 0.8 : 1}
           />
           
-          <FloatingBalloons />
+          <FloatingBalloons scale={isMobile ? 0.7 : 1} />
           
           <GiftBox 
-            position={[5, -1, 3]} 
+            position={isMobile ? [3, -1, 2] : [5, -1, 3]} 
             onOpen={handleGiftOpen}
             isOpen={giftOpened}
+            scale={isMobile ? 0.8 : 1}
           />
           
           <PhotoCarousel3D 
             photos={photosWithTitles}
-            position={[0, 2, -8]}
-            radius={3}
+            position={isMobile ? [0, 1, -6] : [0, 2, -8]}
+            radius={isMobile ? 2 : 3}
+            scale={isMobile ? 0.8 : 1}
           />
           
-          <BirthdayCountdown 
-            targetDate={defaultBirthdayDate}
-            position={[-8, 3, 0]}
-          />
+          {/* Birthday Message instead of countdown */}
+          <Html position={isMobile ? [-4, 2, 0] : [-6, 3, 0]} transform occlude>
+            <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-4 rounded-xl shadow-lg backdrop-blur-md border border-white/20">
+              <h3 className="text-lg font-bold mb-2">🎂 Birthday Celebration!</h3>
+              <p className="text-sm">Every day is special with Sakshi!</p>
+              <div className="flex items-center justify-center mt-2">
+                <div className="animate-bounce text-2xl">🎉</div>
+              </div>
+            </div>
+          </Html>
           
           {/* Confetti */}
           <ConfettiExplosion 
             trigger={confettiTrigger}
             position={[0, 5, 0]}
-            count={300}
+            count={isMobile ? 150 : 300}
           />
           
           {/* Ground */}
           <mesh receiveShadow position={[0, -3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[100, 100]} />
             <meshStandardMaterial 
-              color="#f0f8ff" 
+              color="#1a1a2e" 
               transparent 
-              opacity={0.3}
+              opacity={0.2}
             />
           </mesh>
         </Suspense>
       </Canvas>
       
-      {/* UI Overlay */}
-      <div className="absolute top-4 left-4 text-white bg-black/30 backdrop-blur-sm rounded-lg p-4">
-        <h3 className="text-lg font-bold mb-2">🎂 3D Birthday Experience</h3>
-        <ul className="text-sm space-y-1">
-          <li>🕯️ Click candles to blow them out</li>
-          <li>🎁 Click the gift box to open it</li>
-          <li>📸 Click photos in the carousel</li>
-          <li>🖱️ Drag to rotate, scroll to zoom</li>
-        </ul>
-      </div>
+      {/* Mobile-friendly UI Overlay */}
+      {showInstructions && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className={`absolute ${isMobile ? 'top-2 left-2 right-2' : 'top-4 left-4'} text-white bg-black/40 backdrop-blur-md rounded-xl p-4 border border-white/20`}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-bold">🎂 3D Birthday Experience</h3>
+            <button 
+              onClick={() => setShowInstructions(false)}
+              className="text-white/70 hover:text-white text-xl"
+            >
+              ×
+            </button>
+          </div>
+          <ul className="text-sm space-y-1">
+            <li>🕯️ {isMobile ? 'Tap' : 'Click'} candles to blow them out</li>
+            <li>🎁 {isMobile ? 'Tap' : 'Click'} the gift box to open it</li>
+            <li>📸 {isMobile ? 'Tap' : 'Click'} photos in the carousel</li>
+            <li>{isMobile ? '👆 Touch to rotate, pinch to zoom' : '🖱️ Drag to rotate, scroll to zoom'}</li>
+          </ul>
+        </motion.div>
+      )}
+      
+      {/* Welcome Message */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1, duration: 1 }}
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none z-10"
+      >
+        <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+          🎉 Happy Birthday Sakshi! 🎉
+        </h1>
+        <p className="text-lg md:text-xl text-white/90 drop-shadow-md">
+          Welcome to your magical 3D birthday world!
+        </p>
+      </motion.div>
       
       {/* Performance indicator */}
-      <div className="absolute bottom-4 right-4 text-white bg-black/30 backdrop-blur-sm rounded-lg p-2 text-xs">
-        3D Scene Active
+      <div className={`absolute ${isMobile ? 'bottom-2 right-2' : 'bottom-4 right-4'} text-white bg-black/30 backdrop-blur-sm rounded-lg px-3 py-1 text-xs`}>
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span>3D Active</span>
+        </div>
       </div>
     </div>
   );

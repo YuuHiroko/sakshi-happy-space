@@ -1,16 +1,78 @@
+/* Mobile-first responsive design */
 .birthday-bg {
   background: linear-gradient(135deg, #ffe4e1 0%, #fffbe7 40%, #e0c3fc 100%);
   min-height: 100vh;
 }
+
 .gradient-text {
   background: linear-gradient(90deg, #ff8da7, #f9d423, #70e1f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
+
 .wishes-section {
   background: rgba(255,255,255,0.9);
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(255,182,193,0.14);
   padding: 2rem;
   margin-top: 2rem;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .wishes-section {
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+}
+
+/* 3D Scene optimizations */
+.canvas-container {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Smooth animations */
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile-friendly touch targets */
+@media (max-width: 768px) {
+  button, .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Performance optimizations */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

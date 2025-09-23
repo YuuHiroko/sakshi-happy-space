@@ -1,0 +1,216 @@
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Sun, Moon, Home, Camera, Clock, MessageSquare, Heart, Music, Sparkles } from "lucide-react";
+
+interface FixedNavbarProps {
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
+  currentSection: string;
+  onSectionChange: (section: string) => void;
+  show3DScene: boolean;
+  onToggle3D: () => void;
+}
+
+const FixedNavbar = ({ 
+  isDarkMode, 
+  toggleDarkMode, 
+  currentSection, 
+  onSectionChange,
+  show3DScene,
+  onToggle3D
+}: FixedNavbarProps) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navItems = [
+    { id: '3d', label: '3D World', icon: Sparkles },
+    { id: 'about', label: 'About', icon: Home },
+    { id: 'gallery', label: 'Gallery', icon: Camera },
+    { id: 'timeline', label: 'Timeline', icon: Clock },
+    { id: 'testimonials', label: 'Stories', icon: MessageSquare },
+    { id: 'wishes', label: 'Wishes', icon: Heart },
+    { id: 'music', label: 'Music', icon: Music },
+  ];
+
+  const handleSectionClick = (sectionId: string) => {
+    onSectionChange(sectionId);
+    setIsMobileMenuOpen(false);
+    
+    if (sectionId === '3d') {
+      onToggle3D();
+    } else {
+      if (show3DScene) {
+        onToggle3D();
+      }
+      // Smooth scroll to section
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  };
+
+  return (
+    <>
+      {/* Fixed Top Navbar */}
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled 
+            ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg shadow-lg border-b border-white/20 dark:border-gray-700/50' 
+            : 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo/Title */}
+            <motion.div 
+              className="flex items-center space-x-2"
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className="text-2xl">🎂</div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+                Sakshi's World
+              </h1>
+            </motion.div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-1">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <motion.button
+                    key={item.id}
+                    onClick={() => handleSectionClick(item.id)}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                      currentSection === item.id
+                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Icon size={16} />
+                    <span>{item.label}</span>
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            {/* Dark Mode Toggle & Mobile Menu */}
+            <div className="flex items-center space-x-4">
+              {/* Dark Mode Toggle */}
+              <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1">
+                {isDarkMode ? (
+                  <Moon size={14} className="text-blue-400" />
+                ) : (
+                  <Sun size={14} className="text-yellow-500" />
+                )}
+                <Switch 
+                  id="dark-mode" 
+                  checked={isDarkMode} 
+                  onCheckedChange={toggleDarkMode}
+                  className="scale-75"
+                />
+              </div>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <div className="w-6 h-6 flex flex-col justify-center items-center">
+                  <span className={`block w-5 h-0.5 bg-current transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1' : '-translate-y-1'}`} />
+                  <span className={`block w-5 h-0.5 bg-current transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'}`} />
+                  <span className={`block w-5 h-0.5 bg-current transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1' : 'translate-y-1'}`} />
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        <motion.div
+          initial={false}
+          animate={{ height: isMobileMenuOpen ? 'auto' : 0 }}
+          className="md:hidden overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700"
+        >
+          <div className="px-4 py-2 space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleSectionClick(item.id)}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 ${
+                    currentSection === item.id
+                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <Icon size={18} />
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+      </motion.nav>
+
+      {/* Welcome Header - Only show when not in 3D mode */}
+      {!show3DScene && (
+        <motion.header
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="pt-20 pb-8 text-center bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20"
+        >
+          <div className="max-w-4xl mx-auto px-4">
+            <motion.h1 
+              className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-pink-500 via-purple-600 to-blue-600 bg-clip-text text-transparent"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              Welcome to Sakshi's World
+            </motion.h1>
+            <motion.p 
+              className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              🎂 A magical birthday experience filled with love, memories, and happiness 🎉
+            </motion.p>
+            <motion.button
+              onClick={() => handleSectionClick('3d')}
+              className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-lg"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              🌟 Enter 3D World
+            </motion.button>
+          </div>
+        </motion.header>
+      )}
+    </>
+  );
+};
+
+export default FixedNavbar;
