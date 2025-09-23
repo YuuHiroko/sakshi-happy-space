@@ -4,7 +4,7 @@ import Header from '@/components/Header';
 import PhotoGallery from '@/components/PhotoGallery';
 import Timeline from '@/components/Timeline';
 import Testimonials from '@/components/Testimonials';
-import Loader from '@/components/Loader';
+import EnhancedLoader from '@/components/enhanced/EnhancedLoader';
 import WishCollection from '@/components/WishCollection';
 import MusicVisualizer from '@/components/MusicVisualizer';
 import EnhancedBirthdayScene3D from '@/components/3d/EnhancedBirthdayScene3D';
@@ -168,7 +168,7 @@ const Index: React.FC = () => {
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'}`}>
-      <Loader isLoading={isLoading} />
+      <EnhancedLoader isLoading={isLoading} />
       <FixedNavbar isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} currentSection={currentSection} onSectionChange={handleSectionChange} show3DScene={show3DScene} onToggle3D={toggle3DScene} />
       <AnimatePresence>
         {show3DScene && (
