@@ -15,7 +15,7 @@ const MusicVisualizer = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number>(0);
   
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSong, setCurrentSong] = useState(0);
@@ -46,6 +46,8 @@ const MusicVisualizer = () => {
   ];
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    
     const canvas = canvasRef.current;
     const audio = audioRef.current;
     
@@ -191,7 +193,6 @@ const MusicVisualizer = () => {
         ref={audioRef}
         src={playlist[currentSong].url}
         onEnded={nextSong}
-        volume={volume}
       />
       
       {/* Visualizer Canvas */}

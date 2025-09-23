@@ -8,7 +8,7 @@ import Testimonials from '@/components/Testimonials';
 import Loader from '@/components/Loader';
 import WishCollection from '@/components/WishCollection';
 import MusicVisualizer from '@/components/MusicVisualizer';
-import BirthdayScene3D from '@/components/3d/BirthdayScene3D';
+import EnhancedBirthdayScene3D from '@/components/3d/EnhancedBirthdayScene3D';
 import FixedNavbar from '@/components/FixedNavbar';
 import { particlesConfig, darkParticlesConfig } from '@/utils/particlesConfig';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -240,7 +240,7 @@ const Index = () => {
             transition={{ duration: 0.5 }}
             className="fixed inset-0 z-40"
           >
-            <BirthdayScene3D photos={photos} />
+            <EnhancedBirthdayScene3D photos={photos} />
           </motion.div>
         )}
       </AnimatePresence>

@@ -8,9 +8,10 @@ interface GiftBoxProps {
   position?: [number, number, number];
   onOpen?: () => void;
   isOpen?: boolean;
+  scale?: number;
 }
 
-const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false }: GiftBoxProps) => {
+const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false, scale = 1 }: GiftBoxProps) => {
   const boxRef = useRef<Group>(null);
   const lidRef = useRef<Group>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -24,8 +25,8 @@ const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false }: GiftBoxProps)
   });
 
   // Hover animation
-  const { scale } = useSpringAnimation({
-    scale: isHovered ? 1.1 : 1,
+  const { hoverScale } = useSpringAnimation({
+    hoverScale: isHovered ? 1.1 : 1,
     config: { tension: 300, friction: 10 }
   });
 
@@ -47,10 +48,10 @@ const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false }: GiftBoxProps)
   };
 
   return (
-    <animated.group 
+    <group 
       ref={boxRef} 
       position={position}
-      scale={scale}
+      scale={scale * (isHovered ? 1.1 : 1)}
       onClick={handleClick}
       onPointerOver={() => setIsHovered(true)}
       onPointerOut={() => setIsHovered(false)}
@@ -65,10 +66,10 @@ const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false }: GiftBoxProps)
       </Box>
       
       {/* Gift box lid */}
-      <animated.group 
+      <group 
         ref={lidRef}
-        position-y={lidY}
-        rotation-x={lidRotation}
+        position={[0, isOpen ? 2 : 0, 0]}
+        rotation={[isOpen ? Math.PI * 0.3 : 0, 0, 0]}
       >
         <Box args={[2.1, 0.3, 2.1]} position={[0, 0.9, 0]}>
           <meshStandardMaterial 
@@ -125,7 +126,7 @@ const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false }: GiftBoxProps)
             />
           </Cylinder>
         </group>
-      </animated.group>
+      </group>
       
       {/* Sparkles around the gift */}
       {!isOpen && (
@@ -154,7 +155,7 @@ const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false }: GiftBoxProps)
           })}
         </group>
       )}
-    </animated.group>
+    </group>
   );
 };
 

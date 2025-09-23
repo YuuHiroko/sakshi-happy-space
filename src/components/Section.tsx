@@ -55,7 +55,7 @@ const Section = ({ title, id, children, className = '' }: SectionProps) => {
       ref={ref}
       initial="hidden"
       animate={controls}
-      variants={variants}
+      variants={variants as any}
       className={`max-w-5xl mx-auto my-16 px-6 md:px-10 ${className}`}
     >
       <div className="glass-card p-8 md:p-10 hover:shadow-xl transition-all duration-300">

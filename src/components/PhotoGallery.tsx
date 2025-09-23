@@ -62,7 +62,7 @@ const PhotoGallery = ({ photos }: PhotoGalleryProps) => {
       y: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut"
+        ease: [0.4, 0, 0.2, 1]
       }
     }
   };
@@ -87,7 +87,7 @@ const PhotoGallery = ({ photos }: PhotoGalleryProps) => {
         {photos.map((photo, index) => (
           <motion.div
             key={index}
-            variants={itemVariants}
+            variants={itemVariants as any}
             className="photo-card aspect-square cursor-pointer group relative overflow-hidden rounded-xl shadow-lg"
             whileHover={!isMobile ? { y: -5, scale: 1.02 } : {}}
             whileTap={{ scale: 0.98 }}

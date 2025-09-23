@@ -13,9 +13,10 @@ interface PhotoCarousel3DProps {
   photos: Photo[];
   position?: [number, number, number];
   radius?: number;
+  scale?: number;
 }
 
-const PhotoCarousel3D = ({ photos, position = [0, 0, 0], radius = 4 }: PhotoCarousel3DProps) => {
+const PhotoCarousel3D = ({ photos, position = [0, 0, 0], radius = 4, scale = 1 }: PhotoCarousel3DProps) => {
   const carouselRef = useRef<Group>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoRotating, setIsAutoRotating] = useState(true);
@@ -37,7 +38,7 @@ const PhotoCarousel3D = ({ photos, position = [0, 0, 0], radius = 4 }: PhotoCaro
   };
 
   return (
-    <group position={position}>
+    <group position={position} scale={scale}>
       <group ref={carouselRef}>
         {photos.map((photo, index) => {
           const angle = (index / photos.length) * Math.PI * 2;
@@ -70,14 +71,14 @@ const PhotoCarousel3D = ({ photos, position = [0, 0, 0], radius = 4 }: PhotoCaro
                 position={[0, 0.1, 0]}
                 onClick={() => handlePhotoClick(index)}
               >
-                <meshStandardMaterial>
-                  <Image 
-                    url={photo.src} 
-                    transparent
-                    opacity={1}
-                  />
-                </meshStandardMaterial>
+                <meshStandardMaterial color="white" />
               </Box>
+              <mesh position={[0, 0.1, 0.02]}>
+                <planeGeometry args={[2, 2.5]} />
+                <meshBasicMaterial>
+                  <Image url={photo.src} />
+                </meshBasicMaterial>
+              </mesh>
               
               {/* Photo title */}
               {photo.title && (

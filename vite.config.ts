@@ -1,13 +1,13 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "path";
+import { resolve } from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: process.env.NODE_ENV === 'vercel' ? '/' : (process.env.NODE_ENV === 'production' ? '/sakshi-happy-space/' : '/'),
+  base: "/",
   server: {
     host: "0.0.0.0",
-    port: 12000,
+    port: 8080,
     allowedHosts: true,
     headers: {
       'X-Frame-Options': 'ALLOWALL',
@@ -17,7 +17,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": resolve("./src"),
     },
   },
   optimizeDeps: {

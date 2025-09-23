@@ -6,7 +6,7 @@ import Confetti3D from './Confetti3D';
 import PhotoCarousel3D from './PhotoCarousel3D';
 import Countdown3D from './Countdown3D';
 import MusicVisualizer3D from './MusicVisualizer3D';
-import GiftBox3D from './GiftBox3D';
+import GiftBox from './3d/GiftBox';
 
 export default function Scene3D() {
   return (
@@ -20,7 +20,7 @@ export default function Scene3D() {
           <PhotoCarousel3D />
           <Countdown3D />
           <MusicVisualizer3D />
-          <GiftBox3D />
+          <GiftBox />
         </Suspense>
       </Canvas>
     </div>

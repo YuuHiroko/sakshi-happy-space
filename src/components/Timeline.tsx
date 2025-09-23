@@ -55,7 +55,7 @@ const Timeline = ({ events }: TimelineProps) => {
       x: 0,
       transition: {
         duration: 0.6,
-        ease: "easeOut"
+        ease: [0.4, 0, 0.2, 1]
       }
     }
   };
@@ -71,7 +71,7 @@ const Timeline = ({ events }: TimelineProps) => {
       {events.map((event, index) => (
         <motion.div 
           key={index}
-          variants={itemVariants}
+          variants={itemVariants as any}
           className="timeline-item"
         >
           <div className="bg-gradient-to-r from-sakshi-purple/10 to-sakshi-blue/10 text-sakshi-purple inline-block py-1 px-3 rounded-full text-sm mb-2">
