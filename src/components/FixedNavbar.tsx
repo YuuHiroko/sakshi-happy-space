@@ -44,16 +44,13 @@ const FixedNavbar = ({
   ];
 
   const handleSectionClick = (sectionId: string) => {
+    console.log('Navbar: Clicking section', sectionId);
     onSectionChange(sectionId);
     setIsMobileMenuOpen(false);
     
-    if (sectionId === '3d') {
-      onToggle3D();
-    } else {
-      if (show3DScene) {
-        onToggle3D();
-      }
-      // Smooth scroll to section
+    // Don't use onToggle3D here, let the parent handle the 3D scene logic
+    // Just smooth scroll to section if it's not 3D
+    if (sectionId !== '3d') {
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {

@@ -1,6 +1,6 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 
 interface Song {
   title: string;
@@ -20,6 +20,8 @@ const MusicVisualizer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSong, setCurrentSong] = useState(0);
   const [volume, setVolume] = useState(0.7);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   // Birthday playlist for Sakshi
   const playlist: Song[] = [

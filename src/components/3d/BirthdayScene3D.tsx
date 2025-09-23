@@ -116,9 +116,10 @@ const BirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
             position={[0, -2, 0]} 
             onAllCandlesBlown={handleCandlesBlown}
             scale={isMobile ? 0.8 : 1}
+            isMobile={isMobile}
           />
           
-          <FloatingBalloons scale={isMobile ? 0.7 : 1} />
+          <FloatingBalloons isMobile={isMobile} />
           
           <GiftBox 
             position={isMobile ? [3, -1, 2] : [5, -1, 3]} 

@@ -1,7 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Sphere, Cylinder } from '@react-three/drei';
-import { Group, Vector3 } from 'three';
+import { Group } from 'three';
 
 interface BalloonProps {
   position: [number, number, number];
@@ -51,17 +51,28 @@ const Balloon = ({ position, color, scale = 1, floatSpeed = 1, floatRange = 0.5 
   );
 };
 
-const FloatingBalloons = () => {
-  const balloons = [
-    { position: [-4, 3, -2] as [number, number, number], color: "#ff69b4", scale: 1.2, floatSpeed: 0.8 },
-    { position: [4, 4, -1] as [number, number, number], color: "#87ceeb", scale: 1, floatSpeed: 1.2 },
-    { position: [-6, 5, 1] as [number, number, number], color: "#98fb98", scale: 0.9, floatSpeed: 1.5 },
-    { position: [6, 3.5, 2] as [number, number, number], color: "#ffd700", scale: 1.1, floatSpeed: 0.9 },
-    { position: [-2, 6, -3] as [number, number, number], color: "#ff6347", scale: 0.8, floatSpeed: 1.3 },
-    { position: [2, 5.5, 3] as [number, number, number], color: "#dda0dd", scale: 1, floatSpeed: 1.1 },
-    { position: [-8, 4, 0] as [number, number, number], color: "#40e0d0", scale: 0.9, floatSpeed: 1.4 },
-    { position: [8, 4.5, -1] as [number, number, number], color: "#ff1493", scale: 1.3, floatSpeed: 0.7 },
-  ];
+interface FloatingBalloonsProps {
+  isMobile?: boolean;
+  count?: number;
+}
+
+const FloatingBalloons = ({ isMobile = false, count }: FloatingBalloonsProps) => {
+  const balloons = useMemo(() => {
+    const allBalloons = [
+      { position: [-4, 3, -2] as [number, number, number], color: "#ff69b4", scale: 1.2, floatSpeed: 0.8 },
+      { position: [4, 4, -1] as [number, number, number], color: "#87ceeb", scale: 1, floatSpeed: 1.2 },
+      { position: [-6, 5, 1] as [number, number, number], color: "#98fb98", scale: 0.9, floatSpeed: 1.5 },
+      { position: [6, 3.5, 2] as [number, number, number], color: "#ffd700", scale: 1.1, floatSpeed: 0.9 },
+      { position: [-2, 6, -3] as [number, number, number], color: "#ff6347", scale: 0.8, floatSpeed: 1.3 },
+      { position: [2, 5.5, 3] as [number, number, number], color: "#dda0dd", scale: 1, floatSpeed: 1.1 },
+      { position: [-8, 4, 0] as [number, number, number], color: "#40e0d0", scale: 0.9, floatSpeed: 1.4 },
+      { position: [8, 4.5, -1] as [number, number, number], color: "#ff1493", scale: 1.3, floatSpeed: 0.7 },
+    ];
+    
+    // Reduce balloons on mobile for better performance
+    const targetCount = count || (isMobile ? 4 : 8);
+    return allBalloons.slice(0, targetCount);
+  }, [isMobile, count]);
 
   return (
     <group>

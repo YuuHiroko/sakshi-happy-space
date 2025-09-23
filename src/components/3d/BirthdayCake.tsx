@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Cylinder, Sphere } from '@react-three/drei';
 import { Mesh, Group } from 'three';
@@ -53,9 +53,16 @@ const Candle = ({ position, isLit, onBlow }: CandleProps) => {
 interface BirthdayCakeProps {
   position?: [number, number, number];
   onAllCandlesBlown?: () => void;
+  scale?: number;
+  isMobile?: boolean;
 }
 
-const BirthdayCake = ({ position = [0, 0, 0], onAllCandlesBlown }: BirthdayCakeProps) => {
+const BirthdayCake = ({ 
+  position = [0, 0, 0], 
+  onAllCandlesBlown, 
+  scale = 1, 
+  isMobile = false 
+}: BirthdayCakeProps) => {
   const cakeRef = useRef<Group>(null);
   const [candlesLit, setCandlesLit] = useState([true, true, true, true, true]);
   
@@ -65,39 +72,59 @@ const BirthdayCake = ({ position = [0, 0, 0], onAllCandlesBlown }: BirthdayCakeP
     }
   });
 
-  const blowCandle = (index: number) => {
-    const newCandlesLit = [...candlesLit];
-    newCandlesLit[index] = false;
-    setCandlesLit(newCandlesLit);
-    
-    if (newCandlesLit.every(lit => !lit) && onAllCandlesBlown) {
-      setTimeout(onAllCandlesBlown, 500);
-    }
-  };
+  const blowCandle = useCallback((index: number) => {
+    setCandlesLit(prev => {
+      const newCandlesLit = [...prev];
+      newCandlesLit[index] = false;
+      
+      if (newCandlesLit.every(lit => !lit) && onAllCandlesBlown) {
+        setTimeout(onAllCandlesBlown, 500);
+      }
+      
+      return newCandlesLit;
+    });
+  }, [onAllCandlesBlown]);
 
-  const candlePositions: [number, number, number][] = [
-    [0, 0, 0],
-    [-0.6, 0, 0.3],
-    [0.6, 0, 0.3],
-    [-0.3, 0, -0.5],
-    [0.3, 0, -0.5],
-  ];
+  const candlePositions = useMemo(() => {
+    const basePositions: [number, number, number][] = [
+      [0, 0, 0],
+      [-0.6, 0, 0.3],
+      [0.6, 0, 0.3],
+      [-0.3, 0, -0.5],
+      [0.3, 0, -0.5],
+    ];
+    
+    // Reduce candles on mobile for better performance
+    return isMobile ? basePositions.slice(0, 3) : basePositions;
+  }, [isMobile]);
 
   return (
-    <group ref={cakeRef} position={position}>
+    <group ref={cakeRef} position={position} scale={scale}>
       {/* Cake base */}
       <Cylinder args={[1.2, 1.2, 0.6]} position={[0, -0.3, 0]}>
-        <meshStandardMaterial color="#8B4513" />
+        <meshStandardMaterial 
+          color="#8B4513" 
+          roughness={0.8}
+          metalness={0.1}
+        />
       </Cylinder>
       
       {/* Cake top layer */}
       <Cylinder args={[1, 1, 0.4]} position={[0, 0.1, 0]}>
-        <meshStandardMaterial color="#FFB6C1" />
+        <meshStandardMaterial 
+          color="#FFB6C1" 
+          roughness={0.6}
+          metalness={0.05}
+        />
       </Cylinder>
       
       {/* Frosting */}
       <Cylinder args={[1.05, 1.05, 0.1]} position={[0, 0.35, 0]}>
-        <meshStandardMaterial color="#FFFFFF" />
+        <meshStandardMaterial 
+          color="#FFFFFF" 
+          roughness={0.3}
+          metalness={0.1}
+        />
       </Cylinder>
       
       {/* Candles */}
@@ -113,10 +140,13 @@ const BirthdayCake = ({ position = [0, 0, 0], onAllCandlesBlown }: BirthdayCakeP
       {/* Happy Birthday text */}
       <Text
         position={[0, 1.8, 0]}
-        fontSize={0.3}
+        fontSize={isMobile ? 0.25 : 0.3}
         color="#ff1493"
         anchorX="center"
         anchorY="middle"
+        font="/fonts/Inter-Bold.woff"
+        outlineWidth={0.02}
+        outlineColor="#ffffff"
       >
         Happy Birthday Sakshi!
       </Text>

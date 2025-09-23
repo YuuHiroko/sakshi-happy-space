@@ -1,10 +1,11 @@
 
-import { useEffect, useRef } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 
 interface Photo {
   src: string;
   alt: string;
+  title?: string;
 }
 
 interface PhotoGalleryProps {
@@ -14,8 +15,14 @@ interface PhotoGalleryProps {
 const PhotoGallery = ({ photos }: PhotoGalleryProps) => {
   const controls = useAnimation();
   const ref = useRef<HTMLDivElement>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -31,6 +38,7 @@ const PhotoGallery = ({ photos }: PhotoGalleryProps) => {
     }
 
     return () => {
+      window.removeEventListener('resize', checkMobile);
       if (currentRef) {
         observer.unobserve(currentRef);
       }
@@ -59,30 +67,86 @@ const PhotoGallery = ({ photos }: PhotoGalleryProps) => {
     }
   };
 
+  const handlePhotoClick = useCallback((photo: Photo) => {
+    setSelectedPhoto(photo);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setSelectedPhoto(null);
+  }, []);
+
   return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={controls}
-      variants={containerVariants}
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8"
-    >
-      {photos.map((photo, index) => (
-        <motion.div
-          key={index}
-          variants={itemVariants}
-          className="photo-card aspect-square"
-          whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-        >
-          <img 
-            src={photo.src} 
-            alt={photo.alt} 
-            loading="lazy"
-            className="w-full h-full object-cover"
-          />
-        </motion.div>
-      ))}
-    </motion.div>
+    <>
+      <motion.div
+        ref={ref}
+        initial="hidden"
+        animate={controls}
+        variants={containerVariants}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-8"
+      >
+        {photos.map((photo, index) => (
+          <motion.div
+            key={index}
+            variants={itemVariants}
+            className="photo-card aspect-square cursor-pointer group relative overflow-hidden rounded-xl shadow-lg"
+            whileHover={!isMobile ? { y: -5, scale: 1.02 } : {}}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => handlePhotoClick(photo)}
+          >
+            <img 
+              src={photo.src} 
+              alt={photo.alt} 
+              loading="lazy"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            {photo.title && (
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <h3 className="font-semibold text-sm">{photo.title}</h3>
+              </div>
+            )}
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Photo Modal */}
+      <AnimatePresence>
+        {selectedPhoto && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={closeModal}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="relative max-w-4xl max-h-[90vh] bg-white rounded-xl overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={closeModal}
+                className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors"
+              >
+                ×
+              </button>
+              <img
+                src={selectedPhoto.src}
+                alt={selectedPhoto.alt}
+                className="w-full h-full object-contain"
+              />
+              {selectedPhoto.title && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                  <h3 className="text-white text-xl font-semibold">{selectedPhoto.title}</h3>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

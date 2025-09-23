@@ -104,12 +104,22 @@ const Index = () => {
   ];
 
   const handleSectionChange = (section: string) => {
+    console.log('Changing section to:', section);
     setCurrentSection(section);
+    
+    // If switching to 3D, show the 3D scene
+    if (section === '3d') {
+      setShow3DScene(true);
+    } else {
+      // If switching to any other section, hide the 3D scene
+      setShow3DScene(false);
+    }
   };
 
   const toggle3DScene = () => {
-    setShow3DScene(!show3DScene);
-    setCurrentSection(show3DScene ? 'about' : '3d');
+    const newShow3D = !show3DScene;
+    setShow3DScene(newShow3D);
+    setCurrentSection(newShow3D ? '3d' : 'about');
   };
 
   const renderCurrentSection = () => {
