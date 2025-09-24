@@ -25,7 +25,7 @@ const suggestions = [
     id: 'music',
     emoji: '🎶',
     title: 'Enjoy the Playlist',
-    caption: 'Listen to Sakshi's favorite tunes for a celebratory mood.',
+    caption: `Listen to Sakshi's favorite tunes for a celebratory mood.`,
     url: '#music', // Link to a potential music section
   },
   {
@@ -33,7 +33,7 @@ const suggestions = [
     imageSrc: 'https://images.unsplash.com/photo-1517409287515-58e6e5a0046b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YmlydGhkYXklMjBtZW1vcnllc3xlbnwwfHwwfHw%3D',
     title: 'Share a Memory',
     caption: 'Recall a fond memory you shared with Sakshi.',
-    url: '#testimonials', // Link to a potential testimonials section
+        url: '#testimonials', // Link to a potential testimonials section
   },
 ];
 
