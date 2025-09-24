@@ -1,3 +1,4 @@
+//This is a comment to force a new build
 import React, { useState, useEffect, useMemo } from 'react';
 import BirthdayHeader from '@/components/BirthdayHeader';
 import ConfettiWrapper from '@/components/ConfettiWrapper';
