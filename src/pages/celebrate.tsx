@@ -1,4 +1,4 @@
-pushimport React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import BirthdayHeader from '@/components/BirthdayHeader';
 import ConfettiWrapper from '@/components/ConfettiWrapper';
 import SuggestionsList from '@/components/SuggestionsList';
@@ -25,7 +25,7 @@ const suggestions = [
     id: 'music',
     emoji: '🎶',
     title: 'Enjoy the Playlist',
-    caption: 'Listen to Sakshi\'s favorite tunes for a celebratory mood.',
+    caption: "Listen to Sakshi's favorite tunes for a celebratory mood.",
     url: '#music', // Link to a potential music section
   },
   {
