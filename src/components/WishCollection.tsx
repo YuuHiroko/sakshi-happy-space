@@ -54,7 +54,8 @@ const WishCollection = () => {
       if (savedWishes) {
         const parsedWishes = JSON.parse(savedWishes).map((wish: any) => ({
           ...wish,
-          timestamp: new Date(wish.timestamp)
+          timestamp: new Date(wish.timestamp),
+          category: wish.category in wishCategories ? wish.category : 'birthday'
         }));
         setWishes(parsedWishes);
       } else {
@@ -200,6 +201,7 @@ const WishCollection = () => {
                 </motion.button>
               </div>
             </div>
+.
           </motion.div>
         )}
       </AnimatePresence>
@@ -207,7 +209,7 @@ const WishCollection = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         <AnimatePresence>
           {displayedWishes.map((wish, index) => {
-            const category = wishCategories[wish.category];
+            const category = wishCategories[wish.category] || wishCategories.birthday;
             const Icon = category.icon;
             
             return (
