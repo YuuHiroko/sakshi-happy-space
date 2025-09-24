@@ -4,7 +4,7 @@ import { OrbitControls, Stars } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import PhotoCard from './PhotoCard';
 import PhotoBoothControls from './PhotoBoothControls';
-import { carouselPhotos } from '@/data/carousel-photos';
+import { photos as carouselPhotos } from '@/data/photos';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import usePhotoPositions from '@/hooks/usePhotoPositions';
 
