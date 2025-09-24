@@ -16,7 +16,7 @@ const suggestions = [
   },
   {
     id: 'gallery',
-    imageSrc: 'https://images.unsplash.com/photo-1522335765-bb4e6d3ce032?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGJpcnthdayJTIwcGFydHl8ZW58MHx8MHx8fDA%3D',
+    imageSrc: 'https://images.unsplash.com/photo-1522335765-bb4e6d3ce032?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGJpcnRoZGF5JTIwcGFydHl8ZW58MHx8MHx8fDA%3D',
     title: 'View Photo Gallery',
     caption: 'Relive cherished memories and special moments.',
     url: '#gallery', // Link to a potential photo gallery section
@@ -25,7 +25,7 @@ const suggestions = [
     id: 'music',
     emoji: '🎶',
     title: 'Enjoy the Playlist',
-    caption: "Listen to Sakshi's favorite tunes for a celebratory mood.", // Fixed the apostrophe
+    caption: 'Listen to Sakshi\'s favorite tunes for a celebratory mood.',
     url: '#music', // Link to a potential music section
   },
   {
