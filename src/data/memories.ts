@@ -11,7 +11,7 @@ export const memories: Memory[] = [
   {
     id: 'snowman-challenge',
     imageUrl: '/images/memories/1.jpg',
-    caption: 'The great snowman-building challenge of winter '22. We nearly froze, but our snowman was a masterpiece!',
+    caption: 'The great snowman-building challenge of winter \'22. We nearly froze, but our snowman was a masterpiece!',
     author: 'Alex',
     date: '2022-12-25',
     tags: ['winter', 'fun', 'creative'],
@@ -35,7 +35,7 @@ export const memories: Memory[] = [
   {
     id: 'surprise-party-heist',
     imageUrl: '/images/memories/4.jpg',
-    caption: 'The surprise party heist was a total success! Her priceless reaction is a memory I'll cherish forever.',
+    caption: 'The surprise party heist was a total success! Her priceless reaction is a memory I\'ll cherish forever.',
     author: 'David',
     date: '2023-03-10',
     tags: ['party', 'friends', 'surprise'],
