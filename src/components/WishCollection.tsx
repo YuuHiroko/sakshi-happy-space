@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Send, Star, Sparkles, Camera, Music, Cake, Gift } from 'lucide-react';
+import { Heart, Send, Star, Sparkles, Camera, Music, Cake, Gift, Edit, Trash2, X } from 'lucide-react';
+import SuggestedReplies from './SuggestedReplies';
 
 interface Wish {
   id: string;
@@ -8,6 +9,10 @@ interface Wish {
   author: string;
   timestamp: Date;
   category: WishCategory;
+}
+
+interface WishCollectionProps {
+  storageKey: string;
 }
 
 type WishCategory = 'birthday' | 'memory' | 'future' | 'appreciation' | 'fun' | 'love' | 'adventure';
@@ -18,16 +23,17 @@ interface WishCategoryInfo {
   gradient: string;
   name: string;
   avatar: string;
+  suggestions: string[];
 }
 
 const wishCategories: Record<WishCategory, WishCategoryInfo> = {
-  birthday: { icon: Cake, color: 'text-pink-500', gradient: 'from-pink-500 to-rose-400', name: 'Birthday', avatar: '🎂' },
-  memory: { icon: Camera, color: 'text-purple-500', gradient: 'from-purple-500 to-indigo-400', name: 'Memory', avatar: '📸' },
-  future: { icon: Star, color: 'text-blue-500', gradient: 'from-blue-500 to-cyan-400', name: 'Future', avatar: '✨' },
-  appreciation: { icon: Heart, color: 'text-red-500', gradient: 'from-red-500 to-pink-400', name: 'Appreciation', avatar: '❤️' },
-  fun: { icon: Music, color: 'text-green-500', gradient: 'from-green-500 to-emerald-400', name: 'Fun', avatar: '🎉' },
-  love: { icon: Sparkles, color: 'text-yellow-500', gradient: 'from-yellow-500 to-orange-400', name: 'Love', avatar: '💕' },
-  adventure: { icon: Gift, color: 'text-indigo-500', gradient: 'from-indigo-500 to-purple-400', name: 'Adventure', avatar: '🌟' }
+  birthday: { icon: Cake, color: 'text-pink-500', gradient: 'from-pink-500 to-rose-400', name: 'Birthday', avatar: '🎂', suggestions: ['Happy Birthday!', 'Many happy returns!', 'Have a great day!'] },
+  memory: { icon: Camera, color: 'text-purple-500', gradient: 'from-purple-500 to-indigo-400', name: 'Memory', avatar: '📸', suggestions: ['I remember when...', 'That was a great time!', 'We should do that again!'] },
+  future: { icon: Star, color: 'text-blue-500', gradient: 'from-blue-500 to-cyan-400', name: 'Future', avatar: '✨', suggestions: ['I wish you all the best!', 'The future is bright!', 'You have so much to look forward to!'] },
+  appreciation: { icon: Heart, color: 'text-red-500', gradient: 'from-red-500 to-pink-400', name: 'Appreciation', avatar: '❤️', suggestions: ['Thank you for everything!', 'I really appreciate you.', 'You are a true friend.'] },
+  fun: { icon: Music, color: 'text-green-500', gradient: 'from-green-500 to-emerald-400', name: 'Fun', avatar: '🎉', suggestions: ['Let the good times roll!', 'This is going to be epic!', 'Time to party!'] },
+  love: { icon: Sparkles, color: 'text-yellow-500', gradient: 'from-yellow-500 to-orange-400', name: 'Love', avatar: '💕', suggestions: ['You are amazing!', 'I love you!', 'You mean the world to me.'] },
+  adventure: { icon: Gift, color: 'text-indigo-500', gradient: 'from-indigo-500 to-purple-400', name: 'Adventure', avatar: '🌟', suggestions: ['To the next adventure!', 'Let\'s explore the world.', 'The journey awaits.'] }
 };
 
 const predefinedWishes: Omit<Wish, 'id' | 'timestamp'>[] = [
@@ -40,17 +46,19 @@ const predefinedWishes: Omit<Wish, 'id' | 'timestamp'>[] = [
   { text: "Here's to new adventures, exciting journeys, and discovering amazing things about yourself! 🌟", author: "Adventure Guide", category: 'adventure' }
 ];
 
-const WishCollection = () => {
+const WishCollection: React.FC<WishCollectionProps> = ({ storageKey }) => {
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [newWish, setNewWish] = useState('');
   const [authorName, setAuthorName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<WishCategory>('birthday');
+  const [editingWish, setEditingWish] = useState<Wish | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
     try {
-      const savedWishes = localStorage.getItem('sakshi-birthday-wishes');
+      const savedWishes = localStorage.getItem(storageKey);
       if (savedWishes) {
         const parsedWishes = JSON.parse(savedWishes).map((wish: any) => ({
           ...wish,
@@ -67,7 +75,7 @@ const WishCollection = () => {
         setWishes(initialWishes);
       }
     } catch (error) {
-      console.error("Failed to load wishes from localStorage:", error);
+      console.error(`Failed to load wishes from localStorage (key: ${storageKey}):`, error);
       const initialWishes = predefinedWishes.map(wish => ({
         ...wish,
         id: Math.random().toString(36).substr(2, 9),
@@ -75,37 +83,61 @@ const WishCollection = () => {
       }));
       setWishes(initialWishes);
     }
-  }, []);
+  }, [storageKey]);
 
   useEffect(() => {
     try {
-      localStorage.setItem('sakshi-birthday-wishes', JSON.stringify(wishes));
+      localStorage.setItem(storageKey, JSON.stringify(wishes));
     } catch (error) {
-      console.error("Failed to save wishes to localStorage:", error);
+      console.error(`Failed to save wishes to localStorage (key: ${storageKey}):`, error);
     }
-  }, [wishes]);
+  }, [wishes, storageKey]);
 
-  const addWish = () => {
+  const handleAddOrUpdateWish = () => {
     if (newWish.trim() && authorName.trim()) {
-      const wish: Wish = {
-        id: Date.now().toString(),
-        text: newWish.trim(),
-        author: authorName.trim(),
-        timestamp: new Date(),
-        category: selectedCategory
-      };
-      
-      setWishes(prev => [wish, ...prev]);
-      setNewWish('');
-      setAuthorName('');
-      setShowForm(false);
+      if (editingWish) {
+        // Update existing wish
+        setWishes(wishes.map(w => w.id === editingWish.id ? { ...w, text: newWish, author: authorName, category: selectedCategory } : w));
+      } else {
+        // Add new wish
+        const wish: Wish = {
+          id: Date.now().toString(),
+          text: newWish.trim(),
+          author: authorName.trim(),
+          timestamp: new Date(),
+          category: selectedCategory
+        };
+        setWishes(prev => [wish, ...prev]);
+      }
+      resetForm();
     }
   };
+
+  const handleEdit = (wish: Wish) => {
+    setEditingWish(wish);
+    setNewWish(wish.text);
+    setAuthorName(wish.author);
+    setSelectedCategory(wish.category);
+    setShowForm(true);
+  };
+
+  const handleDelete = (id: string) => {
+    setWishes(wishes.filter(w => w.id !== id));
+    setShowDeleteConfirm(null);
+  };
+
+  const resetForm = () => {
+    setNewWish('');
+    setAuthorName('');
+    setSelectedCategory('birthday');
+    setEditingWish(null);
+    setShowForm(false);
+  }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      addWish();
+      handleAddOrUpdateWish();
     }
   };
 
@@ -113,8 +145,9 @@ const WishCollection = () => {
 
   return (
     <div className="relative font-sans">
+      {/* Add/Edit Wish Button */}
       <motion.button
-        onClick={() => setShowForm(!showForm)}
+        onClick={() => { setShowForm(!showForm); if (editingWish) resetForm(); }}
         className="mb-10 px-8 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white rounded-full font-bold shadow-2xl hover:shadow-3xl transition-all duration-400 flex items-center gap-4 mx-auto backdrop-blur-md border-2 border-white/30 group"
         whileHover={{ scale: 1.08, y: -4 }}
         whileTap={{ scale: 0.97 }}
@@ -125,10 +158,11 @@ const WishCollection = () => {
         <motion.div animate={{ rotate: showForm ? 225 : 0 }} transition={{ duration: 0.4 }}>
           <Heart className="w-7 h-7 group-hover:animate-pulse" />
         </motion.div>
-        <span className="text-xl">Add Your Birthday Wish</span>
+        <span className="text-xl">{showForm ? (editingWish ? 'Edit Your Wish' : 'Close Form') : 'Add Your Birthday Wish'}</span>
         <Star className="w-7 h-7 group-hover:animate-spin-slow" />
       </motion.button>
 
+      {/* Wish Form */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -137,6 +171,7 @@ const WishCollection = () => {
             exit={{ opacity: 0, y: -35, scale: 0.9 }}
             className="mb-12 p-8 bg-black/20 backdrop-blur-xl rounded-3xl border-2 border-white/20 shadow-2xl"
           >
+            {/* ... form content ... */}
             <div className="space-y-6">
               <div>
                 <label className="block text-white font-semibold mb-4 text-xl tracking-wide">Choose a Category:</label>
@@ -180,9 +215,13 @@ const WishCollection = () => {
                 className="w-full px-6 py-4 bg-white/10 backdrop-blur-md rounded-xl border-2 border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-3 focus:ring-pink-400 focus:border-transparent resize-none h-36 text-lg"
                 onKeyPress={handleKeyPress}
               />
+                <SuggestedReplies
+                    suggestions={wishCategories[selectedCategory].suggestions}
+                    onSelect={(suggestion) => setNewWish(suggestion)}
+                />
               <div className="flex gap-4 justify-end pt-2">
                 <motion.button
-                  onClick={() => setShowForm(false)}
+                  onClick={resetForm}
                   className="px-8 py-3 bg-white/20 text-white rounded-xl hover:bg-white/30 transition-colors text-lg font-semibold"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
@@ -190,22 +229,23 @@ const WishCollection = () => {
                   Cancel
                 </motion.button>
                 <motion.button
-                  onClick={addWish}
+                  onClick={handleAddOrUpdateWish}
                   disabled={!newWish.trim() || !authorName.trim()}
                   className={`px-8 py-3 bg-gradient-to-r ${wishCategories[selectedCategory].gradient} text-white rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-3 text-lg font-semibold`}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                 >
                   <Send className="w-5 h-5" />
-                  Send Your Wish
+                  {editingWish ? 'Update Wish' : 'Send Your Wish'}
                 </motion.button>
               </div>
             </div>
-.
+
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Wish Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         <AnimatePresence>
           {displayedWishes.map((wish, index) => {
@@ -232,6 +272,7 @@ const WishCollection = () => {
                   transition: { duration: 0.25 }
                 }}
               >
+                {/* ... card content ... */}
                 <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-400">
                   <div className={`absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl ${category.gradient} rounded-full transform translate-x-12 -translate-y-12 blur-2xl`} />
                   <div className={`absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr ${category.gradient} rounded-full transform -translate-x-8 translate-y-8 blur-2xl`} />
@@ -259,8 +300,13 @@ const WishCollection = () => {
                   </div>
                 </div>
 
-                <div className="absolute top-5 right-5 opacity-50 group-hover:opacity-80 transition-opacity">
-                  <Sparkles className="w-6 h-6 text-yellow-200 animate-pulse-slow" />
+                <div className="absolute top-5 right-5 opacity-50 group-hover:opacity-100 transition-opacity flex gap-2">
+                    <motion.button onClick={() => handleEdit(wish)} whileHover={{scale: 1.2}} whileTap={{scale: 0.9}} className="p-1.5 bg-black/30 rounded-full text-blue-300 hover:text-blue-400">
+                        <Edit size={18}/>
+                    </motion.button>
+                    <motion.button onClick={() => setShowDeleteConfirm(wish.id)} whileHover={{scale: 1.2}} whileTap={{scale: 0.9}} className="p-1.5 bg-black/30 rounded-full text-red-300 hover:text-red-400">
+                        <Trash2 size={18}/>
+                    </motion.button>
                 </div>
                 
                 <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-3xl`} />
@@ -294,6 +340,7 @@ const WishCollection = () => {
         )}
       </div>
 
+      {/* Show All/Less Button */}
       {wishes.length > 7 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -311,6 +358,48 @@ const WishCollection = () => {
           </motion.button>
         </motion.div>
       )}
+
+      {/* Delete Confirmation Modal */}
+       <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            initial={{opacity: 0}}
+            animate={{opacity: 1}}
+            exit={{opacity: 0}}
+          >
+            <motion.div 
+              className="bg-gray-800/80 border border-white/20 rounded-2xl p-8 shadow-xl text-center max-w-sm"
+              initial={{scale: 0.9, opacity: 0}}
+              animate={{scale: 1, opacity: 1}}
+              exit={{scale: 0.9, opacity: 0}}
+              transition={{type: 'spring', damping: 15}}
+            >
+              <h3 className="text-2xl font-bold text-white mb-4">Confirm Deletion</h3>
+              <p className="text-white/80 mb-8">Are you sure you want to delete this wish forever?</p>
+              <div className="flex justify-center gap-4">
+                <motion.button 
+                  onClick={() => setShowDeleteConfirm(null)} 
+                  className="px-8 py-3 bg-white/20 text-white rounded-xl font-semibold"
+                  whileHover={{scale: 1.05, backgroundColor: 'rgba(255,255,255,0.3)'}}
+                  whileTap={{scale: 0.95}}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button 
+                  onClick={() => handleDelete(showDeleteConfirm)} 
+                  className="px-8 py-3 bg-red-500/80 text-white rounded-xl font-semibold"
+                  whileHover={{scale: 1.05, backgroundColor: 'rgb(239, 68, 68)'}}
+                  whileTap={{scale: 0.95}}
+                >
+                  Delete
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 };

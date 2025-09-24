@@ -1,15 +1,39 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sun, Moon } from 'lucide-react';
 
 interface BirthdayHeaderProps {
   name: string;
   age?: number;
   subtitle?: string;
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
 }
 
-const BirthdayHeader: React.FC<BirthdayHeaderProps> = ({ name, age, subtitle }) => {
+const BirthdayHeader: React.FC<BirthdayHeaderProps> = ({ name, age, subtitle, isDarkMode, toggleDarkMode }) => {
   return (
-    <header className="py-16 md:py-24 text-center bg-gradient-to-br from-purple-100 via-pink-100 to-red-100 dark:from-gray-900 dark:via-purple-900/20 dark:to-red-900/20 px-4">
+    <header className="relative py-16 md:py-24 text-center bg-gradient-to-br from-purple-100 via-pink-100 to-red-100 dark:from-gray-900 dark:via-purple-900/20 dark:to-red-900/20 px-4">
+      <div className="absolute top-4 right-4">
+        <motion.button
+          onClick={toggleDarkMode}
+          className="p-2 rounded-full bg-black/10 dark:bg-white/10 text-gray-800 dark:text-gray-200 border border-black/20 dark:border-white/20"
+          whileHover={{ scale: 1.1, rotate: 15 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={isDarkMode ? 'moon' : 'sun'}
+              initial={{ y: -20, opacity: 0, rotate: -90 }}
+              animate={{ y: 0, opacity: 1, rotate: 0 }}
+              exit={{ y: 20, opacity: 0, rotate: 90 }}
+              transition={{ duration: 0.3 }}
+            >
+              {isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
+            </motion.div>
+          </AnimatePresence>
+        </motion.button>
+      </div>
+
       <div className="max-w-4xl mx-auto">
         <motion.h1
           className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold mb-4 leading-tight \

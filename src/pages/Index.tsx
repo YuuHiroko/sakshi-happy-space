@@ -12,6 +12,9 @@ import FixedNavbar from '@/components/FixedNavbar';
 import { particlesConfig, darkParticlesConfig } from '@/utils/particlesConfig';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles } from "lucide-react";
+import { photos } from '@/data/photos';
+import { timelineEvents } from '@/data/timelineEvents';
+import { testimonials } from '@/data/testimonials';
 
 // Import Particles.js directly in the component
 declare global {
@@ -55,6 +58,10 @@ const Index: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
   const [show3DScene, setShow3DScene] = useState(true);
   const [currentSection, setCurrentSection] = useState<SectionName>(SECTIONS.SCENE_3D);
+  const [isGiftOpen, setIsGiftOpen] = useState(false);
+  const [areCandlesBlown, setAreCandlesBlown] = useState(false);
+  const [arePhotosViewed, setArePhotosViewed] = useState(false);
+  const [isCakeCut, setIsCakeCut] = useState(false);
 
   const toggleDarkMode = () => {
     setIsDarkMode(prevMode => {
@@ -92,31 +99,6 @@ const Index: React.FC = () => {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
-  const photos: Photo[] = useMemo(() => [
-    { src: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600&h=600&fit=crop', alt: 'Birthday celebration', title: 'Birthday Joy' },
-    { src: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=600&h=600&fit=crop', alt: 'Happy moments', title: 'Sweet Memories' },
-    { src: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=600&fit=crop', alt: 'Celebration time', title: 'Party Time' },
-    { src: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=600&fit=crop', alt: 'Birthday cake', title: 'Cake Moments' },
-    { src: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&h=600&fit=crop', alt: 'Birthday balloons', title: 'Balloon Fun' },
-    { src: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=600&h=600&fit=crop', alt: 'Special day', title: 'Special Day' },
-  ], []);
-
-  const timelineEvents: TimelineEvent[] = useMemo(() => [
-    { year: 'Year 1', title: 'The Beginning', description: 'First steps into this beautiful world!' },
-    { year: 'Year 10', title: 'Academic Achievement', description: 'Won her first award in school.' },
-    { year: 'Year 15', title: 'High School Success', description: 'Graduated with honors from high school.' },
-    { year: 'Year 18', title: 'College Journey', description: 'Started her college journey with a bright future ahead.' },
-    { year: 'Year 22', title: 'Career Milestone', description: 'Landed her dream job and began a successful career.' },
-  ], []);
-
-  const testimonials: Testimonial[] = useMemo(() => [
-    { quote: "Sakshi is amazing! She brings joy to everyone around her.", author: "Friend 1" },
-    { quote: "She lights up every room she enters! Her kindness is contagious.", author: "Friend 2" },
-    { quote: "The most supportive person I know. Always there when you need her.", author: "Family Member" },
-    { quote: "Her creativity and passion inspire me every day. Simply extraordinary!", author: "Colleague" },
-    { quote: "A true friend with a heart of gold. The world needs more people like her.", author: "Childhood Friend" },
-  ], []);
-
   const handleSectionChange = (section: SectionName) => {
     setCurrentSection(section);
     setShow3DScene(section === SECTIONS.SCENE_3D);
@@ -126,6 +108,10 @@ const Index: React.FC = () => {
     const newShow3D = !show3DScene;
     setShow3DScene(newShow3D);
     setCurrentSection(newShow3D ? SECTIONS.SCENE_3D : SECTIONS.ABOUT);
+  };
+  
+  const handleGiftOpen = () => {
+    setIsGiftOpen(true);
   };
 
   const renderCurrentSection = () => {
@@ -150,7 +136,7 @@ const Index: React.FC = () => {
       case SECTIONS.TESTIMONIALS:
         return <Section id="testimonials" title="What People Say"><p className="text-lg leading-relaxed mb-6">Hear from the people whose lives have been touched by Sakshi's presence and kindness.</p><Testimonials testimonials={testimonials} /></Section>;
       case SECTIONS.WISHES:
-        return <Section id="wishes" title="Birthday Wishes"><p className="text-lg leading-relaxed mb-6">Share your heartfelt birthday wishes for Sakshi! Your messages will make her special day even more memorable.</p><WishCollection /></Section>;
+        return <Section id="wishes" title="Birthday Wishes"><p className="text-lg leading-relaxed mb-6">Share your heartfelt birthday wishes for Sakshi! Your messages will make her special day even more memorable.</p><WishCollection storageKey="sakshi-birthday-wishes-main" /></Section>;
       case SECTIONS.MUSIC:
         return (
           <Section id="music" title="Birthday Music Experience">
@@ -182,7 +168,19 @@ const Index: React.FC = () => {
             transition={{ duration: 0.5 }}
             className="fixed inset-0 z-40"
           >
-            <EnhancedBirthdayScene3D photos={photos} />
+            <EnhancedBirthdayScene3D 
+              title="Happy Birthday Sakshi!"
+              subtitle="A universe of love, just for you ✨"
+              photos={photos} 
+              isGiftOpen={isGiftOpen} 
+              onGiftOpen={handleGiftOpen} 
+              areCandlesBlown={areCandlesBlown}
+              onCandlesBlown={() => setAreCandlesBlown(true)}
+              arePhotosViewed={arePhotosViewed}
+              onPhotosViewed={() => setArePhotosViewed(true)}
+              isCakeCut={isCakeCut}
+              onCakeCut={() => setIsCakeCut(true)}
+            />
           </motion.div>
         ) : (
           <motion.div
