@@ -11,6 +11,7 @@ import EnhancedBirthdayScene3D from '@/components/3d/EnhancedBirthdayScene3D';
 import FixedNavbar from '@/components/FixedNavbar';
 import { particlesConfig, darkParticlesConfig } from '@/utils/particlesConfig';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles } from "lucide-react";
 
 // Import Particles.js directly in the component
 declare global {
@@ -192,6 +193,7 @@ const Index: React.FC = () => {
             transition={{ duration: 0.5 }}
           >
             <main className="min-h-screen">
+              <Header /> {/* Kept Header for general non-3D intro */}
               {renderCurrentSection()}
             </main>
             <footer className="relative py-10 text-center bg-gradient-to-r from-pink-500 via-purple-600 to-blue-600">
@@ -221,6 +223,21 @@ const Index: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {!show3DScene && (
+        <motion.button
+          onClick={() => handleSectionChange(SECTIONS.SCENE_3D)}
+          className="fixed bottom-4 right-4 z-50 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-base flex items-center gap-2"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Sparkles size={18} /> 3D World
+        </motion.button>
+      )}
     </div>
   );
 };

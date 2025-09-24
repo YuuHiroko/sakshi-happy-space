@@ -127,44 +127,6 @@ const FixedNavbar: React.FC<FixedNavbarProps> = ({
           </div>
         </motion.div>
       </motion.nav>
-
-      {!show3DScene && (
-        <motion.header
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="pt-20 pb-8 text-center bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20"
-        >
-          <div className="max-w-4xl mx-auto px-4">
-            <motion.h1 
-              className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-pink-500 via-purple-600 to-blue-600 bg-clip-text text-transparent"
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              Welcome to Sakshi's World
-            </motion.h1>
-            <motion.p 
-              className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              🎂 A magical birthday experience filled with love, memories, and happiness 🎉
-            </motion.p>
-            <motion.button
-              onClick={() => handleSectionClick('3d')}
-              className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-lg"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.6 }}
-            >
-              🌟 Enter 3D World
-            </motion.button>
-          </div>
-        </motion.header>
-      )}
     </>
   );
 };
