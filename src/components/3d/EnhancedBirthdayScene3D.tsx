@@ -11,6 +11,7 @@ import SceneLighting from './SceneLighting';
 import SceneFloor from './SceneFloor';
 import GuidedTour from './GuidedTour';
 
+// Props for the BirthdayScene3D component
 interface BirthdayScene3DProps {
   photos: Array<{ src: string; alt: string; title?: string }>;
   title: string;
