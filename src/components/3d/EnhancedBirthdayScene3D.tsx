@@ -30,7 +30,7 @@ const CustomLoader = () => {
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           />
           <div className="absolute inset-0 flex items-center justify-center font-bold text-2xl">
-            {`${~~progress}`}% 
+            {~~progress}% 
           </div>
         </div>
         <p className="text-xl font-semibold tracking-wider">Loading Birthday Magic...</p>
