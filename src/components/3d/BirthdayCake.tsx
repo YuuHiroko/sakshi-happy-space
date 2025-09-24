@@ -1,16 +1,18 @@
-import { useRef, useState, useMemo, useCallback } from 'react';
+import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Cylinder, Sphere, Sparkles } from '@react-three/drei';
 import { Mesh, Group } from 'three';
+import { useSpring as useSpringAnimation, animated } from '@react-spring/three';
 
 interface CandleProps {
   position: [number, number, number];
   isLit: boolean;
   onBlow: () => void;
   isMobile?: boolean;
+  canBlow: boolean;
 }
 
-const Candle = ({ position, isLit, onBlow, isMobile = false }: CandleProps) => {
+const Candle = ({ position, isLit, onBlow, isMobile = false, canBlow }: CandleProps) => {
   const flameRef = useRef<Mesh>(null);
   const candleRef = useRef<Group>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -35,9 +37,9 @@ const Candle = ({ position, isLit, onBlow, isMobile = false }: CandleProps) => {
     <group 
       ref={candleRef}
       position={position} 
-      onClick={onBlow} 
-      onPointerOver={() => isLit && setIsHovered(true)} 
-      onPointerOut={() => setIsHovered(false)}
+      onClick={canBlow ? onBlow : undefined} 
+      onPointerOver={() => isLit && canBlow && setIsHovered(true)} 
+      onPointerOut={() => isLit && canBlow && setIsHovered(false)}
     >
       <Cylinder args={[0.06, 0.06, 0.9]} position={[0, 0.45, 0]}>
         <meshStandardMaterial color="#f4e4bc" emissive="#f4e4bc" emissiveIntensity={isHovered ? 0.2 : 0} />
@@ -81,26 +83,51 @@ interface BirthdayCakeProps {
   onAllCandlesBlown?: () => void;
   scale?: number;
   isMobile?: boolean;
+  isVisible: boolean;
+  isCut: boolean;
+  canBlow: boolean;
+  canCut: boolean;
+  onCakeCut: () => void;
 }
 
 const BirthdayCake = ({ 
-  position = [0, 0, 0], 
-  onAllCandlesBlown, 
-  scale = 1, 
-  isMobile = false 
+  position = [0, 0, 0],
+  onAllCandlesBlown,
+  scale = 1,
+  isMobile = false,
+  isVisible,
+  isCut,
+  canBlow,
+  canCut,
+  onCakeCut,
 }: BirthdayCakeProps) => {
   const cakeRef = useRef<Group>(null);
   const [candlesLit, setCandlesLit] = useState([true, true, true, true, true]);
   const [allBlown, setAllBlown] = useState(false);
+  const [isPressing, setIsPressing] = useState(false);
+  const pressTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const { sliceX } = useSpringAnimation({
+    sliceX: isCut ? 0.3 : 0,
+    config: { tension: 120, friction: 14 }
+  });
+
+  useEffect(() => {
+    if (!isVisible) {
+      // Reset candles when cake is not visible (e.g., re-entering scene)
+      setCandlesLit([true, true, true, true, true]);
+      setAllBlown(false);
+    }
+  }, [isVisible]);
   
   useFrame((state) => {
-    if (cakeRef.current) {
+    if (cakeRef.current && canBlow) {
       cakeRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.15;
     }
   });
 
   const blowCandle = useCallback((index: number) => {
-    if(allBlown) return;
+    if(allBlown || !canBlow) return;
     setCandlesLit(prev => {
       const newCandlesLit = [...prev];
       newCandlesLit[index] = false;
@@ -114,7 +141,25 @@ const BirthdayCake = ({
       
       return newCandlesLit;
     });
-  }, [onAllCandlesBlown, allBlown]);
+  }, [onAllCandlesBlown, allBlown, canBlow]);
+
+  const handlePointerDown = useCallback(() => {
+    if (canCut) {
+      setIsPressing(true);
+      pressTimer.current = setTimeout(() => {
+        if (isPressing) { // Check again in case pointerUp fired before timer
+          onCakeCut();
+        }
+      }, 700); // Hold for 0.7 seconds to cut
+    }
+  }, [canCut, onCakeCut, isPressing]);
+
+  const handlePointerUp = useCallback(() => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+    }
+    setIsPressing(false);
+  }, []);
 
   const candlePositions = useMemo(() => {
     const basePositions: [number, number, number][] = [
@@ -128,19 +173,30 @@ const BirthdayCake = ({
     return isMobile ? basePositions.slice(0, 3) : basePositions;
   }, [isMobile]);
 
+  if (!isVisible) return null;
+
   return (
-    <group ref={cakeRef} position={position} scale={scale}>
+    <group 
+      ref={cakeRef} 
+      position={position} 
+      scale={scale}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp} // Also clear if pointer leaves while pressed
+    >
       <Cylinder args={[1.3, 1.3, 0.7]} position={[0, -0.35, 0]}>
         <meshStandardMaterial color="#a0522d" roughness={0.7} metalness={0.15} />
       </Cylinder>
       
-      <Cylinder args={[1.1, 1.1, 0.5]} position={[0, 0.25, 0]}>
-        <meshStandardMaterial color="#ffc0cb" roughness={0.6} metalness={0.1} />
-      </Cylinder>
-      
-      <Cylinder args={[1.15, 1.15, 0.15]} position={[0, 0.5, 0]}>
-        <meshStandardMaterial color="#ffffff" roughness={0.2} metalness={0.1} />
-      </Cylinder>
+      <animated.group position-x={sliceX}>
+        <Cylinder args={[1.1, 1.1, 0.5]} position={[0, 0.25, 0]}>
+          <meshStandardMaterial color="#ffc0cb" roughness={0.6} metalness={0.1} />
+        </Cylinder>
+        
+        <Cylinder args={[1.15, 1.15, 0.15]} position={[0, 0.5, 0]}>
+          <meshStandardMaterial color="#ffffff" roughness={0.2} metalness={0.1} />
+        </Cylinder>
+      </animated.group>
       
       {candlePositions.map((pos, index) => (
         <Candle
@@ -149,6 +205,7 @@ const BirthdayCake = ({
           isLit={candlesLit[index]}
           onBlow={() => blowCandle(index)}
           isMobile={isMobile}
+          canBlow={canBlow}
         />
       ))}
       

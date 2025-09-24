@@ -10,9 +10,10 @@ interface GiftBoxProps {
   isOpen?: boolean;
   scale?: number;
   isMobile?: boolean;
+  isVisible: boolean;
 }
 
-const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false, scale = 1, isMobile = false }: GiftBoxProps) => {
+const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false, scale = 1, isMobile = false, isVisible }: GiftBoxProps) => {
   const boxRef = useRef<Group>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
@@ -26,6 +27,8 @@ const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false, scale = 1, isMo
   useEffect(() => {
     if (isOpen) {
       setHasOpened(true);
+    } else {
+        setHasOpened(false); // Reset when closed
     }
   }, [isOpen]);
 
@@ -45,13 +48,15 @@ const GiftBox = ({ position = [0, 0, 0], onOpen, isOpen = false, scale = 1, isMo
     }
   };
 
+  if (!isVisible) return null;
+
   return (
     <group 
       ref={boxRef} 
       position={position}
       onClick={handleClick}
       onPointerOver={() => !isOpen && setIsHovered(true)}
-      onPointerOut={() => setIsHovered(false)}
+      onPointerOut={() => !isOpen && setIsHovered(false)}
       scale={scale}
     >
       <Box args={[2.2, 1.6, 2.2]} position={[0, 0, 0]}>

@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect, useCallback, useMemo } from 'react';
+import { Suspense, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, PerspectiveCamera, Stars, Html, useProgress } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,12 +39,15 @@ const CustomLoader = () => {
   );
 };
 
+type ExperienceStage = 'initial' | 'candles_blown' | 'photos_viewed' | 'gift_opened' | 'cake_ready_to_cut' | 'cake_cut';
+
 const EnhancedBirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps) => {
   const [confettiTrigger, setConfettiTrigger] = useState(false);
-  const [giftOpened, setGiftOpened] = useState(false);
+  const [experienceStage, setExperienceStage] = useState<ExperienceStage>('initial');
   const [isMobile, setIsMobile] = useState(false);
   const [showInstructions, setShowInstructions] = useState(true);
   const [instructionsPinned, setInstructionsPinned] = useState(true);
+  const controlsRef = useRef<any>(null); // Ref for OrbitControls
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -66,20 +69,69 @@ const EnhancedBirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps)
   const handleCandlesBlown = useCallback(() => {
     setConfettiTrigger(true);
     setTimeout(() => setConfettiTrigger(false), 200);
+    setExperienceStage('candles_blown');
+    // Disable cake rotation after blowing candles
+    if (controlsRef.current) {
+        controlsRef.current.autoRotate = false;
+    }
+  }, []);
+
+  const handlePhotosViewed = useCallback(() => {
+    setExperienceStage('photos_viewed');
   }, []);
 
   const handleGiftOpen = useCallback(() => {
-    if(!giftOpened) {
-      setGiftOpened(true);
+    if(experienceStage === 'photos_viewed') {
       setConfettiTrigger(true);
       setTimeout(() => setConfettiTrigger(false), 200);
+      setExperienceStage('gift_opened');
+      setTimeout(() => {
+        setExperienceStage('cake_ready_to_cut');
+      }, 2000); // Give some time for gift animation
     }
-  }, [giftOpened]);
+  }, [experienceStage]);
+
+  const handleCakeCut = useCallback(() => {
+    setConfettiTrigger(true);
+    setTimeout(() => setConfettiTrigger(false), 200);
+    setExperienceStage('cake_cut');
+    if (controlsRef.current) {
+        controlsRef.current.autoRotate = false;
+    }
+  }, []);
 
   const photosWithTitles = useMemo(() => photos.map((photo, index) => ({
     ...photo,
     title: photo.title || `Memory #${index + 1}`
   })), [photos]);
+
+  // Determine if OrbitControls should be enabled
+  const enableOrbitControls = useMemo(() => {
+    return experienceStage !== 'initial' && experienceStage !== 'photos_viewed' && experienceStage !== 'cake_ready_to_cut';
+  }, [experienceStage]);
+
+  const autoRotateControls = useMemo(() => {
+    return experienceStage === 'initial';
+  }, [experienceStage]);
+
+  const cameraPosition = useMemo(() => {
+    switch (experienceStage) {
+      case 'initial':
+        return isMobile ? [0, 4, 15] : [0, 6, 18];
+      case 'candles_blown':
+        return isMobile ? [0, 3, 10] : [0, 4, 12]; // Focus on photos
+      case 'photos_viewed':
+        return isMobile ? [0, 3, 10] : [0, 4, 12]; // Still focused on photos
+      case 'gift_opened':
+        return isMobile ? [2, 0, 8] : [4, 0, 10]; // Focus on gift
+      case 'cake_ready_to_cut':
+        return isMobile ? [0, 2, 8] : [0, 3, 10]; // Zoom into cake
+      case 'cake_cut':
+        return isMobile ? [0, 2, 8] : [0, 3, 10]; // Stay zoomed in
+      default:
+        return isMobile ? [0, 4, 15] : [0, 6, 18];
+    }
+  }, [experienceStage, isMobile]);
 
   return (
     <div className="w-full h-screen relative bg-gradient-to-br from-indigo-900 via-purple-900 to-black overflow-hidden">
@@ -89,17 +141,18 @@ const EnhancedBirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps)
         performance={{ min: 0.5, max: 1 }}
       >
         <Suspense fallback={<CustomLoader />}>
-          <PerspectiveCamera makeDefault position={isMobile ? [0, 4, 15] : [0, 6, 18]} fov={isMobile ? 70 : 50} />
+          <PerspectiveCamera makeDefault position={cameraPosition} fov={isMobile ? 70 : 50} />
           
           <OrbitControls 
-            enablePan={!isMobile}
-            enableZoom
+            ref={controlsRef}
+            enablePan={enableOrbitControls && !isMobile}
+            enableZoom={enableOrbitControls}
             minDistance={isMobile ? 10 : 8}
             maxDistance={isMobile ? 30 : 40}
             maxPolarAngle={Math.PI / 2 - 0.1}
             minAzimuthAngle={-Math.PI / 4}
             maxAzimuthAngle={Math.PI / 4}
-            autoRotate={!giftOpened} // Stop autorotate after interaction
+            autoRotate={autoRotateControls} 
             autoRotateSpeed={0.3}
             dampingFactor={0.05}
             enableDamping
@@ -125,25 +178,37 @@ const EnhancedBirthdayScene3D = ({ photos, birthdayDate }: BirthdayScene3DProps)
             onAllCandlesBlown={handleCandlesBlown}
             scale={isMobile ? 0.9 : 1.3}
             isMobile={isMobile}
+            isVisible={experienceStage === 'initial' || experienceStage === 'cake_ready_to_cut' || experienceStage === 'cake_cut'}
+            isCut={experienceStage === 'cake_cut'}
+            canBlow={experienceStage === 'initial'}
+            canCut={experienceStage === 'cake_ready_to_cut'}
+            onCakeCut={handleCakeCut}
           />
           
           <FloatingBalloons isMobile={isMobile} count={isMobile ? 15 : 25} />
           
-          <GiftBox 
-            position={isMobile ? [4, -1.5, 2] : [6, -1.5, 4]} 
-            onOpen={handleGiftOpen}
-            isOpen={giftOpened}
-            scale={isMobile ? 0.9 : 1.2}
-            isMobile={isMobile}
-          />
+          {(experienceStage === 'photos_viewed' || experienceStage === 'gift_opened' || experienceStage === 'cake_ready_to_cut' || experienceStage === 'cake_cut') && (
+            <GiftBox 
+              position={isMobile ? [4, -1.5, 2] : [6, -1.5, 4]} 
+              onOpen={handleGiftOpen}
+              isOpen={experienceStage === 'gift_opened' || experienceStage === 'cake_ready_to_cut' || experienceStage === 'cake_cut'}
+              scale={isMobile ? 0.9 : 1.2}
+              isMobile={isMobile}
+              isVisible={experienceStage === 'photos_viewed' || experienceStage === 'gift_opened'}
+            />
+          )}
           
-          <PhotoCarousel3D 
-            photos={photosWithTitles}
-            position={isMobile ? [0, 1.5, -5] : [0, 2.5, -7]}
-            radius={isMobile ? 3 : 4.5}
-            scale={isMobile ? 0.9 : 1.2}
-            isMobile={isMobile}
-          />
+          {(experienceStage === 'candles_blown' || experienceStage === 'photos_viewed' || experienceStage === 'gift_opened' || experienceStage === 'cake_ready_to_cut' || experienceStage === 'cake_cut') && (
+            <PhotoCarousel3D 
+              photos={photosWithTitles}
+              position={isMobile ? [0, 1.5, -5] : [0, 2.5, -7]}
+              radius={isMobile ? 3 : 4.5}
+              scale={isMobile ? 0.9 : 1.2}
+              isMobile={isMobile}
+              onPhotosViewed={handlePhotosViewed}
+              isActive={experienceStage === 'candles_blown'}
+            />
+          )}
           
           <ConfettiExplosion trigger={confettiTrigger} position={[0, 10, 0]} count={isMobile ? 250 : 500} />
           
