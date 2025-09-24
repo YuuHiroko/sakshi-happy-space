@@ -6,7 +6,7 @@ import BirthdayCake from './BirthdayCake';
 import FloatingBalloons from './FloatingBalloons';
 import ConfettiExplosion from './ConfettiExplosion';
 import GiftBox from './GiftBox';
-import PhotoCarousel3D from './PhotoCarousel3D';
+import PhotoCarousel3D from './PhotoCarousel3D.tsx';
 import SceneLighting from './SceneLighting';
 import SceneFloor from './SceneFloor';
 import GuidedTour from './GuidedTour';
